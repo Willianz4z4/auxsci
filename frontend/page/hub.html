@@ -3,334 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Auxsci Hub - Evollogic</title>
+    <title>Auxsci Hub - Encurtador e Monetização</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; }
-        body { background: #0a0214; color: white; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* Reset e Base */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background-color: #0a0514; color: white; }
 
-        .css-background { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; background: linear-gradient(-45deg, #1a0524, #2a0845, #240a14, #0a0014); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
+        /* Fundo de Emergência Animado (Garante que nunca fique tela preta) */
+        .css-background {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3;
+            background: linear-gradient(-45deg, #0f0518, #2a0845, #14032e, #0a0014);
+            background-size: 400% 400%; animation: gradientBG 10s ease infinite;
+        }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .top-nav { position: absolute; top: 0; left: 0; width: 100%; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
-        .btn-menu { background: rgba(147, 51, 234, 0.2); border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 12px; color: #d8b4fe; padding: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .lang-select { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(147, 51, 234, 0.4); color: #d8b4fe; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; outline: none; cursor: pointer; backdrop-filter: blur(5px); }
+        /* VÍDEO NOVO (Servidor Rápido Pixabay) */
+        .video-background {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            object-fit: cover; z-index: -2; opacity: 0; transition: opacity 1.5s ease;
+        }
+        .video-overlay {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, rgba(15, 5, 25, 0.7) 0%, rgba(5, 0, 10, 0.85) 100%); z-index: -1;
+        }
 
-        .ad-banner { position: absolute; top: 80px; width: 90%; max-width: 450px; background: rgba(0, 0, 0, 0.6); border: 1px dashed rgba(236, 72, 153, 0.4); border-radius: 12px; padding: 15px; text-align: center; font-size: 11px; color: #9ca3af; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .ad-banner .close-btn { position: absolute; top: 5px; right: 10px; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 16px; }
+        /* --- INTEGRAÇÃO DA BARRA LATERAL (SIDE.HTML) --- */
+        .sidebar-backdrop {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .sidebar-backdrop.active { opacity: 1; pointer-events: all; }
 
-        .container { background: rgba(20, 4, 35, 0.65); padding: 40px 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(147, 51, 234, 0.15); backdrop-filter: blur(20px); border: 1px solid rgba(180, 80, 255, 0.2); text-align: center; max-width: 450px; width: 90%; animation: fadeIn 0.6s ease-out; position: relative; z-index: 10; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .sidebar-frame {
+            position: fixed; top: 0; right: 0; width: 320px; max-width: 85vw; height: 100vh;
+            border: none; z-index: 90; transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+        }
+        .sidebar-frame.active { transform: translateX(0); }
 
-        .system-status { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; }
-        .status-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; }
-        .status-text { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #9ca3af; }
+        /* MENU HAMBÚRGUER (Z-index alto para ficar acima de tudo e fechar a barra) */
+        .hamburger-menu {
+            position: fixed; top: 25px; right: 25px; width: 50px; height: 50px;
+            background: rgba(30, 10, 50, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 14px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+            cursor: pointer; z-index: 100; transition: all 0.3s ease;
+        }
+        .hamburger-menu span { width: 24px; height: 2px; background-color: #d8b4fe; border-radius: 2px; transition: 0.3s; }
+        .hamburger-menu.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); background-color: #fff; }
+        .hamburger-menu.active span:nth-child(2) { opacity: 0; }
+        .hamburger-menu.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background-color: #fff; }
 
-        h1 { margin-top: 0; font-size: 32px; font-weight: 900; color: #f3e8ff; margin-bottom: 10px; }
-        p { font-size: 13px; color: #a78bfa; margin-bottom: 30px; line-height: 1.5; }
-        
-        .input-group { display: flex; flex-direction: column; gap: 15px; }
-        textarea { width: 100%; padding: 15px; border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 12px; font-size: 14px; outline: none; background: rgba(0, 0, 0, 0.6); color: #ffffff; transition: all 0.3s; resize: vertical; min-height: 80px; }
-        textarea:focus { border-color: #c084fc; box-shadow: 0 0 20px rgba(147, 51, 234, 0.4); background: rgba(10, 0, 20, 0.8); }
+        /* CAIXA CENTRAL */
+        .main-wrapper { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+        .container {
+            position: relative; z-index: 10; background: rgba(20, 10, 35, 0.5); padding: 40px 25px;
+            border-radius: 24px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(147, 51, 234, 0.15);
+            text-align: center; max-width: 400px; width: 90%; animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        button { padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, #9333ea 0%, #c084fc 100%); color: white; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3); }
-        button:hover { transform: translateY(-3px); filter: brightness(1.15); box-shadow: 0 12px 30px rgba(147, 51, 234, 0.5); }
-        button:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; box-shadow: none; }
+        h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 20px rgba(147, 51, 234, 0.6); }
+        p { color: #d8b4fe; font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
-        .modal.show { display: flex; animation: fadeIn 0.3s ease; }
-        .modal-content { background: #140423; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; border: 1px solid rgba(251, 191, 36, 0.4); position: relative; text-align: center; box-shadow: 0 0 40px rgba(251, 191, 36, 0.1); }
-        .modal-content h3 { color: #fde68a; margin-bottom: 5px; font-size: 20px; }
-        .modal-content p { color: #9ca3af; font-size: 12px; margin-bottom: 20px; }
-        .modal input { width: 100%; padding: 14px; border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 10px; font-size: 14px; outline: none; background: rgba(0, 0, 0, 0.8); color: #fff; margin-bottom: 20px; text-align: center; }
-        .modal input:focus { border-color: #f59e0b; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
-        .btn-magic-save { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 5px 20px rgba(245, 158, 11, 0.3); width: 100%; }
+        /* INPUT & BOTÃO */
+        .input-group { display: flex; flex-direction: column; gap: 18px; }
+        input {
+            width: 100%; padding: 18px 20px; border: 2px solid rgba(147, 51, 234, 0.5);
+            border-radius: 14px; font-size: 16px; outline: none; background: rgba(0, 0, 0, 0.7); color: #ffffff; 
+            transition: all 0.3s ease; text-align: center;
+        }
+        input:focus { border-color: #d8b4fe; background: rgba(10, 0, 20, 0.9); box-shadow: 0 0 25px rgba(147, 51, 234, 0.6); transform: scale(1.02); }
+        input::placeholder { color: #8b5cf6; }
 
-        .output-box { display: none; margin-top: 20px; border-radius: 12px; font-size: 13px; text-align: center; overflow: hidden; }
-        .output-box.show { display: block; animation: fadeIn 0.4s ease; }
-        
-        .result-link-container { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; margin: 15px 0; word-break: break-all; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .result-link-container a { color: #6ee7b7; text-decoration: none; font-size: 15px; font-weight: bold; }
-        .result-link-container a:hover { text-decoration: underline; }
+        button.btn-primary {
+            width: 100%; padding: 18px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            color: #ffffff; font-size: 16px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.3s;
+        }
+        button.btn-primary:hover { filter: brightness(1.2); box-shadow: 0 8px 25px rgba(147, 51, 234, 0.6); transform: translateY(-2px); }
 
-        .details-dropdown { text-align: left; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(147, 51, 234, 0.3); }
-        .details-dropdown summary { cursor: pointer; color: #c084fc; font-weight: bold; outline: none; user-select: none; margin-bottom: 8px; }
-        .details-dropdown p { color: #d1d5db; font-size: 11px; margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px; }
-        .details-dropdown p:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .details-dropdown span { float: right; font-weight: bold; color: #fff; }
+        .footer-logo { margin-top: 30px; font-size: 12px; color: #8b5cf6; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-logo span { color: #d8b4fe; font-weight: 900; }
 
-        .badge-text-host { display: none; background: #3b82f6; color: white; font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
-        .badge-text-host.show { display: inline-block; }
-
+        @media (min-width: 768px) {
+            .container { max-width: 550px; padding: 50px 40px; }
+            h1 { font-size: 38px; } p { font-size: 17px; margin-bottom: 40px; }
+            input { padding: 22px; font-size: 18px; } button.btn-primary { padding: 20px; font-size: 18px; }
+            .sidebar-frame { width: 400px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="css-background"></div>
 
-    <div class="top-nav">
-        <a href="side.html" class="btn-menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </a>
-        <select class="lang-select" id="lang-selector" onchange="changeLanguage()">
-            <option value="pt">🇧🇷 PT</option>
-            <option value="en">🇺🇸 EN</option>
-            <option value="es">🇪🇸 ES</option>
-        </select>
+    <video autoplay loop muted playsinline class="video-background" id="bg-video">
+        <source src="https://cdn.pixabay.com/video/2021/08/11/84700-587843825_tiny.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="sidebar-backdrop" id="backdrop" onclick="toggleMenu()"></div>
+    <iframe src="side.html" class="sidebar-frame" id="sidebar"></iframe>
+
+    <div class="hamburger-menu" onclick="toggleMenu()" id="menu-btn">
+        <span></span><span></span><span></span>
     </div>
 
-    <div class="ad-banner" id="ad-banner">
-        <span class="close-btn" onclick="document.getElementById('ad-banner').style.display='none'">×</span>
-        [ Espaço do Ad / Banner ]<br>Atualize para Premium para remover.
-    </div>
+    <div class="main-wrapper">
+        <div class="container">
+            <h1 id="txt-title">Auxsci Hub</h1>
+            <p id="txt-desc">Insira o que deseja encurtar e comece a monetizar seus acessos.</p>
+            
+            <div class="input-group">
+                <input type="text" id="linkInput" placeholder="Cole o que deseja encurtar..." required>
+                <button class="btn-primary" onclick="enviarEncurtador()" id="txt-btn1">Encurtar e Monetizar</button>
+            </div>
 
-    <div class="container">
-        <div class="system-status">
-            <div class="status-dot" id="sys-dot"></div>
-            <span class="status-text" id="txt-status">Aguardando APIs</span>
-        </div>
-
-        <h1 id="txt-title">Auxsci Hub</h1>
-        <p id="txt-desc">Transforme seus links e scripts em lucro agora mesmo através do ecossistema Evollogic.</p>
-        
-        <span class="badge-text-host" id="badge-host">📄 Texto Detectado: Página Auto-Gerada</span>
-
-        <div class="input-group">
-            <textarea id="linkInput" placeholder="Cole seu link de destino ou código de script aqui..." required></textarea>
-            <button onclick="iniciarProcesso()" id="txt-btn">Monetizar Conteúdo</button>
-        </div>
-
-        <div class="output-box" id="output-box"></div>
-    </div>
-
-    <div id="miniFormModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" style="position:absolute; top:10px; right:15px; cursor:pointer; color:#ef4444; font-weight:bold;" onclick="document.getElementById('miniFormModal').classList.remove('show')">X</span>
-            <h3 id="txt-modal-title">Configuração Inteligente</h3>
-            <p id="txt-modal-desc">Identificamos o uso da variável <b>{}</b>. Qual é o nome do jogo/tema deste conteúdo?</p>
-            <input type="text" id="magicInput" placeholder="Ex: Blox Fruits">
-            <button class="btn-magic-save" onclick="construirPayloadBackend()">
-                <span id="txt-modal-btn">Aplicar & Gerar Link</span>
-            </button>
+            <div class="footer-logo"><span id="txt-by">by Evollogic</span></div>
         </div>
     </div>
 
     <script>
-        const dic = {
-            "pt": {
-                title: "Auxsci Hub", desc: "Transforme seus links e scripts em lucro agora mesmo através do ecossistema Evollogic.",
-                input: "Cole seu link de destino ou código de script aqui...", btn: "Gerar Encadeamento",
-                sysOff: "APIs Ausentes", sysOn: "Sistema Pronto",
-                errLink: "Por favor, insira conteúdo válido!", errApi: "Erro: Configure pelo menos uma API no Menu!",
-                modalTitle: "Variável Mágica", modalDesc: "Identificamos o uso da variável <b>{}</b> na sua configuração global. Qual é o nome do jogo/tema deste conteúdo?",
-                modalPlaceholder: "Ex: Blox Fruits", modalBtn: "Aplicar & Gerar",
-                statusProcessing: "⏳ Processando...", textHost: "📄 Texto Detectado: Página Auto-Gerada"
-            },
-            "en": {
-                title: "Auxsci Hub", desc: "Turn your links and scripts into profit right now through the Evollogic ecosystem.",
-                input: "Paste your destination link or script code here...", btn: "Generate Chain",
-                sysOff: "Missing APIs", sysOn: "System Ready",
-                errLink: "Please enter valid content!", errApi: "Error: Setup at least one API in the Menu!",
-                modalTitle: "Magic Variable", modalDesc: "We detected the variable <b>{}</b> in your config. What is the game/topic?",
-                modalPlaceholder: "Ex: Blox Fruits", modalBtn: "Apply & Generate",
-                statusProcessing: "⏳ Processing...", textHost: "📄 Text Detected: Auto-Generated Page"
-            },
-            "es": {
-                title: "Auxsci Hub", desc: "Convierte tus enlaces y scripts en ganancias a través del ecosistema Evollogic.",
-                input: "Pega tu enlace de destino o código de script aquí...", btn: "Generar Cadena",
-                sysOff: "APIs Faltantes", sysOn: "Sistema Listo",
-                errLink: "¡Inserta contenido válido!", errApi: "Error: ¡Configura al menos una API en el Menú!",
-                modalTitle: "Variable Mágica", modalDesc: "Detectamos la variable <b>{}</b> en tu configuración. ¿Cuál es el nombre del juego/tema?",
-                modalPlaceholder: "Ej: Blox Fruits", modalBtn: "Aplicar y Generar",
-                statusProcessing: "⏳ Procesando...", textHost: "📄 Texto Detectado: Página Auto-Generada"
-            }
+        // Força a exibição do vídeo assim que ele carregar o primeiro frame
+        const video = document.getElementById('bg-video');
+        video.addEventListener('loadeddata', () => { video.style.opacity = '0.5'; });
+
+        // AUTO-RELOAD
+        let lastModified = null;
+        setInterval(() => {
+            fetch(location.href, { method: 'HEAD' }).then(res => {
+                const currentModified = res.headers.get('Last-Modified');
+                if (!lastModified) lastModified = currentModified;
+                else if (lastModified !== currentModified) location.reload(); 
+            }).catch(() => {}); 
+        }, 2000);
+
+        // Sistema de Tradução
+        const dicionario = {
+            "pt": { title: "Auxsci Hub", desc: "Insira o que deseja encurtar e comece a monetizar seus acessos.", placeholder: "Cole o que deseja encurtar...", btn1: "Encurtar e Monetizar", alertVazio: "Insira algo para encurtar antes!", alertSucesso: "Enviado: ", processando: "Aguarde..." },
+            "en": { title: "Auxsci Hub", desc: "Insert what you want to shorten and start monetizing your traffic.", placeholder: "Paste what you want to shorten...", btn1: "Shorten & Monetize", alertVazio: "Insert something to shorten first!", alertSucesso: "Sent: ", processando: "Wait..." },
+            "es": { title: "Auxsci Hub", desc: "Inserta lo que deseas acortar y comienza a monetizar tu tráfico.", placeholder: "Pega lo que deseas acortar...", btn1: "Acortar y Monetizar", alertVazio: "¡Inserta algo para acortar primeiro!", alertSucesso: "Enviado: ", processando: "Espere..." }
         };
 
-        let currentLang = localStorage.getItem('evollogic_lang') || navigator.language.substring(0, 2);
-        if (!dic[currentLang]) currentLang = "en"; 
-        
-        let systemReady = false;
-        let globalConfig = {};
+        let lang = navigator.language.substring(0, 2);
+        if (lang !== "en" && lang !== "es") { lang = "pt"; } 
+        const txt = dicionario[lang];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById("lang-selector").value = currentLang;
-            const isPremium = localStorage.getItem('evollogic_premium') === 'true';
-            if(isPremium) document.getElementById('ad-banner').style.display = 'none';
-
-            applyTranslations();
-            checkSystemStatus();
-
-            document.getElementById('linkInput').addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                const isUrl = val.startsWith('http://') || val.startsWith('https://');
-                const badge = document.getElementById('badge-host');
-                if (val.length > 0 && !isUrl) {
-                    badge.classList.add('show');
-                } else {
-                    badge.classList.remove('show');
-                }
-            });
-        });
-
-        function applyTranslations() {
-            const txt = dic[currentLang];
+        window.onload = () => {
             document.getElementById("txt-title").innerText = txt.title;
             document.getElementById("txt-desc").innerText = txt.desc;
-            document.getElementById("linkInput").placeholder = txt.input;
-            document.getElementById("txt-btn").innerText = txt.btn;
-            document.getElementById("badge-host").innerText = txt.textHost;
+            document.getElementById("linkInput").setAttribute("placeholder", txt.placeholder);
+            document.getElementById("txt-btn1").innerText = txt.btn1;
+        };
+
+        // Função do Botão Principal
+        function enviarEncurtador() {
+            const input = document.getElementById('linkInput');
+            const texto = input.value.trim();
+            if (texto === "") return alert(txt.alertVazio);
+
+            const btn = document.getElementById("txt-btn1");
+            const textoAntigo = btn.innerText;
+            btn.innerText = txt.processando;
             
-            document.getElementById("txt-modal-title").innerText = txt.modalTitle;
-            document.getElementById("txt-modal-desc").innerHTML = txt.modalDesc;
-            document.getElementById("magicInput").placeholder = txt.modalPlaceholder;
-            document.getElementById("txt-modal-btn").innerText = txt.modalBtn;
-            
-            checkSystemStatus();
+            setTimeout(() => {
+                alert(txt.alertSucesso + texto);
+                btn.innerText = textoAntigo;
+                input.value = ""; 
+            }, 1000);
         }
 
-        function changeLanguage() {
-            currentLang = document.getElementById("lang-selector").value;
-            localStorage.setItem('evollogic_lang', currentLang);
-            applyTranslations();
-        }
-
-        function checkSystemStatus() {
-            const savedStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
-            const txt = dic[currentLang];
-            const dot = document.getElementById('sys-dot');
-            const statusTxt = document.getElementById('txt-status');
+        // --- SISTEMA DA BARRA LATERAL (Puxa o side.html) ---
+        function toggleMenu() {
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
             
-            systemReady = Object.values(savedStates).some(estado => estado === true);
-
-            if (systemReady) {
-                dot.classList.add('active'); statusTxt.innerText = txt.sysOn; statusTxt.style.color = "#10b981";
-            } else {
-                dot.classList.remove('active'); statusTxt.innerText = txt.sysOff; statusTxt.style.color = "#ef4444";
-            }
-        }
-
-        function iniciarProcesso() {
-            const txt = dic[currentLang];
-            const inputData = document.getElementById('linkInput').value.trim();
-            const outBox = document.getElementById('output-box');
-            outBox.classList.remove('show');
-
-            if (!inputData) { alert(txt.errLink); return; }
-            if (!systemReady) { alert(txt.errApi); return; }
-
-            globalConfig = JSON.parse(localStorage.getItem('evollogic_global_configs')) || {};
-            const titleHasVar = (globalConfig.title || "").includes("{}");
-            const descHasVar = (globalConfig.desc || "").includes("{}");
-
-            if (titleHasVar || descHasVar) {
-                document.getElementById('magicInput').value = "";
-                document.getElementById('miniFormModal').classList.add('show');
-            } else {
-                construirPayloadBackend();
-            }
-        }
-
-        function construirPayloadBackend() {
-            const txt = dic[currentLang];
-            document.getElementById('miniFormModal').classList.remove('show');
-            
-            const btn = document.getElementById('txt-btn');
-            btn.innerText = txt.statusProcessing;
-            btn.disabled = true;
-
-            const rawInput = document.getElementById('linkInput').value.trim();
-            const magicWord = document.getElementById('magicInput').value.trim();
-
-            let finalTargetUrl = rawInput;
-            const isUrl = rawInput.startsWith('http://') || rawInput.startsWith('https://');
-
-            if (!isUrl) {
-                const textId = Math.random().toString(36).substring(2, 8);
-                localStorage.setItem('evollogic_paste_' + textId, rawInput);
-                finalTargetUrl = window.location.origin + '/paste.html?id=' + textId;
-            }
-
-            let finalGlobal = { ...globalConfig };
-            if(magicWord !== "") {
-                if(finalGlobal.title) finalGlobal.title = finalGlobal.title.replace(/{}/g, magicWord);
-                if(finalGlobal.desc) finalGlobal.desc = finalGlobal.desc.replace(/{}/g, magicWord);
-            }
-
-            // O SEGREDO ESTÁ AQUI: Cruzar a ordem com os botões ativados!
-            const rawOrder = JSON.parse(localStorage.getItem('evollogic_provider_order')) || ['linkvertise'];
-            const apiStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
-            
-            // Filtra a lista removendo qualquer provedor que esteja desativado (false)
-            const realOrder = rawOrder.filter(provider => apiStates[provider] === true);
-
-            if (realOrder.length === 0) {
-                alert("Nenhum provedor ativo foi encontrado. Ative pelo menos um no menu!");
-                btn.innerText = txt.btn;
-                btn.disabled = false;
-                return;
-            }
-
-            const payload = {
-                content_type: isUrl ? 'url' : 'text',
-                original_input: rawInput,
-                target_url: finalTargetUrl, 
-                magic_word: magicWord,
-                api_keys: JSON.parse(localStorage.getItem('evollogic_api_keys')) || {},
-                api_states: apiStates,
-                order: realOrder, // Agora envia a ordem LIMPA pro Python!
-                global_visuals: finalGlobal,
-                advanced_configs: JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {}
-            };
-
-            fetch('http://localhost:5000', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-                const outBox = document.getElementById('output-box');
-                
-                if (data.status === "success") {
-                    outBox.style.background = "rgba(16, 185, 129, 0.1)";
-                    outBox.style.border = "1px dashed #10b981";
-                    
-                    const provedorUsado = realOrder[0] ? realOrder[0].toUpperCase() : 'DESCONHECIDO';
-
-                    outBox.innerHTML = `
-                        <h3 style="color: #10b981; margin-bottom: 5px;">🎉 Monetização Concluída!</h3>
-                        <p style="color: #6ee7b7; font-size: 11px;">Link final pronto para compartilhamento:</p>
-                        
-                        <div class="result-link-container">
-                            <a href="${data.final_url}" target="_blank">${data.final_url}</a>
-                        </div>
-
-                        <details class="details-dropdown">
-                            <summary>👁️ Ver Detalhes do Roteamento</summary>
-                            <p>Status da API: <span style="color: #10b981;">Conectado</span></p>
-                            <p>Provedor Master: <span style="color: #c084fc;">${provedorUsado}</span></p>
-                            <p>Destino Original: <span style="font-weight: normal; font-size: 10px;">${finalTargetUrl.substring(0, 45)}...</span></p>
-                        </details>
-                    `;
-                } else {
-                    outBox.style.background = "rgba(239, 68, 68, 0.1)";
-                    outBox.style.border = "1px dashed #ef4444";
-                    outBox.innerHTML = `<b style="color: #ef4444; font-size: 15px;">⚠️ Erro do Servidor:</b><br><br><span style="color: #fca5a5;">${data.message}</span>`;
-                }
-                outBox.classList.add('show');
-            })
-            .catch(error => {
-                const outBox = document.getElementById('output-box');
-                outBox.style.background = "rgba(239, 68, 68, 0.1)";
-                outBox.style.border = "1px dashed #ef4444";
-                outBox.innerHTML = `<b style="color: #ef4444; font-size: 15px;">❌ Falha na Conexão</b><br><br><span style="color: #fca5a5;">Não foi possível acessar o backend. Verifique se o backend.py está rodando no terminal.</span>`;
-                outBox.classList.add('show');
-            })
-            .finally(() => {
-                btn.innerText = txt.btn;
-                btn.disabled = false;
-            });
+            menuBtn.classList.toggle('active');
+            sidebar.classList.toggle('active');
+            backdrop.classList.toggle('active');
         }
     </script>
+
+    <script src="https://poetrywishing.com/99/06/9e/99069e3f16d0087a154db540fbb78cd8.js"></script>
 </body>
 </html>
