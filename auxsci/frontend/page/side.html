@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auxsci Side Menu</title>
+    <style>
+        /* Reset e Fontes Neo-Futuristas */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; }
+        
+        body { background: transparent; color: white; overflow: hidden; height: 100vh; width: 100vw; }
+
+        /* Container Principal com Glassmorphism Agressivo */
+        .sidebar {
+            width: 100%; height: 100vh;
+            background: linear-gradient(160deg, rgba(10, 2, 20, 0.98) 0%, rgba(25, 5, 45, 0.95) 100%);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(180, 80, 255, 0.3);
+            display: flex; flex-direction: column; padding: 40px 25px;
+            box-shadow: -15px 0 40px rgba(0,0,0,0.9);
+        }
+
+        /* Título com Brilho Neon */
+        h2 { font-size: 26px; font-weight: 800; margin-bottom: 35px; color: #fff; text-transform: uppercase; letter-spacing: -1px; text-shadow: 0 0 15px rgba(180, 80, 255, 0.7); }
+
+        /* --- ANIMAÇÃO DE ENTRADA (Cascata) --- */
+        .animate-item { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.4s ease-out forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        /* Delays para o efeito cascata */
+        .item-1 { animation-delay: 0.1s; }
+        .item-2 { animation-delay: 0.2s; }
+        .item-3 { animation-delay: 0.3s; }
+        .item-4 { animation-delay: 0.4s; }
+
+        /* --- ESTILO DOS CARDS CLICÁVEIS --- */
+        a { text-decoration: none; display: block; }
+        
+        .nav-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px; border-radius: 18px; margin-bottom: 18px;
+            border: 1px solid rgba(180, 80, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        
+        /* Efeito de hover nos cards normais */
+        .nav-card:hover { transform: scale(1.03); border-color: #c084fc; background: rgba(180, 80, 255, 0.15); box-shadow: 0 10px 30px rgba(110, 0, 255, 0.3); }
+        
+        .card-content { display: flex; flex-direction: column; gap: 6px; }
+        .card-title { font-size: 17px; font-weight: 700; color: #d8b4fe; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .card-desc { font-size: 12px; color: #a78bfa; line-height: 1.4; opacity: 0.8; }
+        .card-arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #8b5cf6; font-size: 20px; transition: 0.3s; opacity: 0.5; }
+        
+        .nav-card:hover .card-title { color: #fff; text-shadow: 0 0 10px #fff; }
+        .nav-card:hover .card-arrow { opacity: 1; right: 15px; color: #fff; }
+
+        /* --- CARD PREMIUM (Efeito Especial Pulse) --- */
+        .premium-card {
+            border: 1px solid rgba(255, 200, 50, 0.3);
+            background: rgba(255, 170, 0, 0.05);
+            animation: premiumPulse 2s infinite; /* Animação constante */
+        }
+        @keyframes premiumPulse {
+            0% { box-shadow: 0 0 10px rgba(255, 170, 0, 0.2); border-color: rgba(255, 200, 50, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 170, 0, 0.4); border-color: rgba(255, 200, 50, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(255, 170, 0, 0.2); border-color: rgba(255, 200, 50, 0.3); }
+        }
+        
+        .premium-card:hover {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(255, 170, 0, 0.2) 100%);
+            border-color: #fbbf24; box-shadow: 0 10px 40px rgba(255, 170, 0, 0.4);
+        }
+        .premium-card .card-title { color: #fef3c7; }
+        .premium-card .card-desc { color: #fde68a; }
+        .premium-card .card-arrow { color: #fbbf24; }
+
+        /* --- ÁREA SOCIAL COM IMAGENS (SVG) --- */
+        .social-section { margin-top: auto; padding-top: 20px; }
+        .social-label { font-size: 12px; color: #8b5cf6; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 15px; display: block; text-align: center; }
+        .social-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        
+        .social-btn {
+            height: 55px; border-radius: 16px; text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; position: relative; border: 1px solid transparent;
+        }
+        
+        /* SVG Logos */
+        .social-logo { height: 24px; width: auto; transition: 0.3s; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
+
+        /* Estilo Discord */
+        .discord { background: rgba(88, 101, 242, 0.1); border-color: rgba(88, 101, 242, 0.3); }
+        .discord:hover { background: #5865F2; box-shadow: 0 0 20px rgba(88, 101, 242, 0.6); border-color: #fff; }
+        
+        /* Estilo Instagram */
+        .instagram { background: rgba(220, 39, 67, 0.1); border-color: rgba(220, 39, 67, 0.3); }
+        .instagram:hover {
+            background: linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%);
+            box-shadow: 0 0 20px rgba(220, 39, 67, 0.6); border-color: #fff;
+        }
+        
+        .social-btn:hover .social-logo { transform: scale(1.1); filter: drop-shadow(0 0 5px #fff); }
+
+        /* --- RODAPÉ COM VERSÃO --- */
+        .version-box {
+            text-align: center; padding-top: 20px; border-top: 1px solid rgba(180, 80, 255, 0.2);
+        }
+        .v-brand { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 4px; }
+        .v-number { font-size: 13px; font-weight: 800; color: #c084fc; letter-spacing: 1px; text-shadow: 0 0 10px rgba(192, 132, 252, 0.5); }
+
+        /* --- AJUSTES PARA PC (DESKTOP) --- */
+        @media (min-width: 768px) {
+            .sidebar { padding: 50px 35px; }
+            h2 { font-size: 30px; margin-bottom: 45px; }
+            .nav-card { padding: 25px; margin-bottom: 22px; }
+            .social-group { gap: 20px; }
+            .social-btn { height: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2 class="animate-item item-1">Auxsci System</h2>
+
+        <a href="keys.html" target="_parent" class="nav-card animate-item item-2">
+            <div class="card-content">
+                <span class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3-3.5 3.5z"></path></svg>
+                    Setup de API
+                </span>
+                <span class="card-desc">Gerencie suas chaves de integração do bot.</span>
+            </div>
+            <span class="card-arrow">❯</span>
+        </a>
+
+        <a href="premium.html" target="_parent" class="nav-card premium-card animate-item item-3">
+            <div class="card-content">
+                <span class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><ロール d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></polygon></svg>
+                    Auxsci Premium
+                </span>
+                <span class="card-desc">Remova anúncios e gerencie múltiplos sites.</span>
+            </div>
+            <span class="card-arrow">❯</span>
+        </a>
+
+        <div class="social-section animate-item item-4">
+            <span class="social-label">Comunidade</span>
+            <div class="social-group">
+                <a href="#" target="_blank" class="social-btn discord">
+                    <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/631005609327293144866c61_discord-logo-white.svg" alt="Discord" class="social-logo">
+                </a>
+                <a href="#" target="_blank" class="social-btn instagram">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" class="social-logo">
+                </a>
+            </div>
+        </div>
+
+        <div class="version-box animate-item item-4">
+            <div class="v-brand">by Evollogic</div>
+            <div class="v-number">v1.0.6-nitro</div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-Reload para desenvolvimento
+        let lastModified = null;
+        setInterval(() => {
+            fetch(location.href, { method: 'HEAD' }).then(res => {
+                const currentModified = res.headers.get('Last-Modified');
+                if (!lastModified) lastModified = currentModified;
+                else if (lastModified !== currentModified) location.reload(); 
+            }).catch(() => {}); 
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auxsci Hub - Encurtador e Monetização</title>
+    <style>
+        /* Reset e Base */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background-color: #0a0514; color: white; }
+
+        /* Fundo de Emergência Animado (Garante que nunca fique tela preta) */
+        .css-background {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3;
+            background: linear-gradient(-45deg, #0f0518, #2a0845, #14032e, #0a0014);
+            background-size: 400% 400%; animation: gradientBG 10s ease infinite;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* VÍDEO NOVO (Servidor Rápido Pixabay) */
+        .video-background {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            object-fit: cover; z-index: -2; opacity: 0; transition: opacity 1.5s ease;
+        }
+        .video-overlay {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, rgba(15, 5, 25, 0.7) 0%, rgba(5, 0, 10, 0.85) 100%); z-index: -1;
+        }
+
+        /* --- INTEGRAÇÃO DA BARRA LATERAL (SIDE.HTML) --- */
+        .sidebar-backdrop {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .sidebar-backdrop.active { opacity: 1; pointer-events: all; }
+
+        .sidebar-frame {
+            position: fixed; top: 0; right: 0; width: 320px; max-width: 85vw; height: 100vh;
+            border: none; z-index: 90; transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+        }
+        .sidebar-frame.active { transform: translateX(0); }
+
+        /* MENU HAMBÚRGUER (Z-index alto para ficar acima de tudo e fechar a barra) */
+        .hamburger-menu {
+            position: fixed; top: 25px; right: 25px; width: 50px; height: 50px;
+            background: rgba(30, 10, 50, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 14px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+            cursor: pointer; z-index: 100; transition: all 0.3s ease;
+        }
+        .hamburger-menu span { width: 24px; height: 2px; background-color: #d8b4fe; border-radius: 2px; transition: 0.3s; }
+        .hamburger-menu.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); background-color: #fff; }
+        .hamburger-menu.active span:nth-child(2) { opacity: 0; }
+        .hamburger-menu.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background-color: #fff; }
+
+        /* CAIXA CENTRAL */
+        .main-wrapper { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+        .container {
+            position: relative; z-index: 10; background: rgba(20, 10, 35, 0.5); padding: 40px 25px;
+            border-radius: 24px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(147, 51, 234, 0.15);
+            text-align: center; max-width: 400px; width: 90%; animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 20px rgba(147, 51, 234, 0.6); }
+        p { color: #d8b4fe; font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
+
+        /* INPUT & BOTÃO */
+        .input-group { display: flex; flex-direction: column; gap: 18px; }
+        input {
+            width: 100%; padding: 18px 20px; border: 2px solid rgba(147, 51, 234, 0.5);
+            border-radius: 14px; font-size: 16px; outline: none; background: rgba(0, 0, 0, 0.7); color: #ffffff; 
+            transition: all 0.3s ease; text-align: center;
+        }
+        input:focus { border-color: #d8b4fe; background: rgba(10, 0, 20, 0.9); box-shadow: 0 0 25px rgba(147, 51, 234, 0.6); transform: scale(1.02); }
+        input::placeholder { color: #8b5cf6; }
+
+        button.btn-primary {
+            width: 100%; padding: 18px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            color: #ffffff; font-size: 16px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.3s;
+        }
+        button.btn-primary:hover { filter: brightness(1.2); box-shadow: 0 8px 25px rgba(147, 51, 234, 0.6); transform: translateY(-2px); }
+
+        .footer-logo { margin-top: 30px; font-size: 12px; color: #8b5cf6; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-logo span { color: #d8b4fe; font-weight: 900; }
+
+        @media (min-width: 768px) {
+            .container { max-width: 550px; padding: 50px 40px; }
+            h1 { font-size: 38px; } p { font-size: 17px; margin-bottom: 40px; }
+            input { padding: 22px; font-size: 18px; } button.btn-primary { padding: 20px; font-size: 18px; }
+            .sidebar-frame { width: 400px; } /* Painel mais largo no PC */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="css-background"></div>
+
+    <video autoplay loop muted playsinline class="video-background" id="bg-video">
+        <source src="https://cdn.pixabay.com/video/2021/08/11/84700-587843825_tiny.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="sidebar-backdrop" id="backdrop" onclick="toggleMenu()"></div>
+    <iframe src="side.html" class="sidebar-frame" id="sidebar"></iframe>
+
+    <div class="hamburger-menu" onclick="toggleMenu()" id="menu-btn">
+        <span></span><span></span><span></span>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <h1 id="txt-title">Auxsci Hub</h1>
+            <p id="txt-desc">Insira o que deseja encurtar e comece a monetizar seus acessos.</p>
+            
+            <div class="input-group">
+                <input type="text" id="linkInput" placeholder="Cole o que deseja encurtar..." required>
+                <button class="btn-primary" onclick="enviarEncurtador()" id="txt-btn1">Encurtar e Monetizar</button>
+            </div>
+
+            <div class="footer-logo"><span id="txt-by">by Evollogic</span></div>
+        </div>
+    </div>
+
+    <script>
+        // Força a exibição do vídeo assim que ele carregar o primeiro frame
+        const video = document.getElementById('bg-video');
+        video.addEventListener('loadeddata', () => { video.style.opacity = '0.5'; });
+
+        // AUTO-RELOAD
+        let lastModified = null;
+        setInterval(() => {
+            fetch(location.href, { method: 'HEAD' }).then(res => {
+                const currentModified = res.headers.get('Last-Modified');
+                if (!lastModified) lastModified = currentModified;
+                else if (lastModified !== currentModified) location.reload(); 
+            }).catch(() => {}); 
+        }, 2000);
+
+        // Sistema de Tradução
+        const dicionario = {
+            "pt": { title: "Auxsci Hub", desc: "Insira o que deseja encurtar e comece a monetizar seus acessos.", placeholder: "Cole o que deseja encurtar...", btn1: "Encurtar e Monetizar", alertVazio: "Insira algo para encurtar antes!", alertSucesso: "Enviado: ", processando: "Aguarde..." },
+            "en": { title: "Auxsci Hub", desc: "Insert what you want to shorten and start monetizing your traffic.", placeholder: "Paste what you want to shorten...", btn1: "Shorten & Monetize", alertVazio: "Insert something to shorten first!", alertSucesso: "Sent: ", processando: "Wait..." },
+            "es": { title: "Auxsci Hub", desc: "Inserta lo que deseas acortar y comienza a monetizar tu tráfico.", placeholder: "Pega lo que deseas acortar...", btn1: "Acortar y Monetizar", alertVazio: "¡Inserta algo para acortar primero!", alertSucesso: "Enviado: ", processando: "Espere..." }
+        };
+
+        let lang = navigator.language.substring(0, 2);
+        if (lang !== "en" && lang !== "es") { lang = "pt"; } 
+        const txt = dicionario[lang];
+
+        window.onload = () => {
+            document.getElementById("txt-title").innerText = txt.title;
+            document.getElementById("txt-desc").innerText = txt.desc;
+            document.getElementById("linkInput").setAttribute("placeholder", txt.placeholder);
+            document.getElementById("txt-btn1").innerText = txt.btn1;
+        };
+
+        // Função do Botão Principal
+        function enviarEncurtador() {
+            const input = document.getElementById('linkInput');
+            const texto = input.value.trim();
+            if (texto === "") return alert(txt.alertVazio);
+
+            const btn = document.getElementById("txt-btn1");
+            const textoAntigo = btn.innerText;
+            btn.innerText = txt.processando;
+            
+            setTimeout(() => {
+                alert(txt.alertSucesso + texto);
+                btn.innerText = textoAntigo;
+                input.value = ""; 
+            }, 1000);
+        }
+
+        // --- SISTEMA DA BARRA LATERAL (Puxa o side.html) ---
+        function toggleMenu() {
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            
+            // Alterna a classe 'active' em todos os elementos
+            menuBtn.classList.toggle('active');
+            sidebar.classList.toggle('active');
+            backdrop.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

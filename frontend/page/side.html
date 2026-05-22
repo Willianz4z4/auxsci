@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evollogic Side Menu</title>
+    <style>
+        /* Reset e Adaptação para Barra Lateral */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; }
+        
+        /* Barra de rolagem cyberpunk estilizada */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(180, 80, 255, 0.4); border-radius: 10px; }
+
+        body, html { 
+            background: transparent; color: white; 
+            width: 100%; height: 100%; 
+            overflow-x: hidden;
+        }
+
+        /* Container Principal */
+        .sidebar {
+            width: 100%; min-height: 100vh;
+            background: linear-gradient(160deg, rgba(10, 2, 20, 0.98) 0%, rgba(20, 4, 35, 0.96) 100%);
+            border-left: 1px solid rgba(180, 80, 255, 0.25);
+            display: flex; flex-direction: column; 
+            padding: 30px 18px;
+        }
+
+        h2 { font-size: 22px; font-weight: 800; margin-bottom: 25px; color: #fff; text-transform: uppercase; letter-spacing: -1px; text-shadow: 0 0 15px rgba(180, 80, 255, 0.7); text-align: center; }
+
+        /* --- ANIMAÇÃO DE ENTRADA --- */
+        .animate-item { opacity: 0; transform: translateY(12px); animation: fadeInUp 0.4s ease-out forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        .item-1 { animation-delay: 0.05s; }
+        .item-2 { animation-delay: 0.1s; }
+        .item-3 { animation-delay: 0.15s; }
+        .item-4 { animation-delay: 0.2s; }
+        .item-5 { animation-delay: 0.25s; }
+        .item-6 { animation-delay: 0.3s; }
+
+        /* --- CARDS DE NAVEGAÇÃO INTERATIVOS --- */
+        a { text-decoration: none; display: block; }
+        
+        .nav-card {
+            background: rgba(0, 0, 0, 0.45);
+            padding: 16px; border-radius: 14px; margin-bottom: 14px;
+            border: 1px solid rgba(180, 80, 255, 0.15);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative;
+        }
+        .nav-card:hover { transform: scale(1.02); border-color: #c084fc; background: rgba(180, 80, 255, 0.1); box-shadow: 0 8px 20px rgba(147, 51, 234, 0.2); }
+        
+        .card-content { display: flex; flex-direction: column; gap: 4px; padding-right: 20px; }
+        .card-title { font-size: 15px; font-weight: 700; color: #d8b4fe; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .card-desc { font-size: 11px; color: #a78bfa; line-height: 1.4; opacity: 0.85; }
+        .card-arrow { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #8b5cf6; font-size: 16px; opacity: 0.5; transition: 0.3s; }
+        
+        .nav-card:hover .card-title { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
+        .nav-card:hover .card-arrow { opacity: 1; right: 11px; color: #fff; }
+
+        /* --- ÁREA PREMIUM COM GRADIENTE EM PULSO --- */
+        .premium-container {
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            background: rgba(236, 72, 153, 0.02);
+            padding: 16px; border-radius: 14px; margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.05); transition: 0.4s ease;
+        }
+        .premium-title { font-size: 15px; font-weight: 700; color: #fbcfe8; display: flex; align-items: center; gap: 8px; text-shadow: 0 0 10px rgba(244, 114, 182, 0.4); margin-bottom: 5px; }
+        .premium-desc { font-size: 11px; color: #fde68a; line-height: 1.4; opacity: 0.9; margin-bottom: 14px; }
+        
+        /* Botão Comprar */
+        .btn-buy-premium {
+            width: 100%; padding: 13px; border: none; border-radius: 10px;
+            background: linear-gradient(135deg, #ec4899 0%, #d946ef 50%, #a855f7 100%);
+            color: #ffffff; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.3s ease; text-align: center;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        }
+        .btn-buy-premium:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 20px rgba(217, 70, 239, 0.5); }
+
+        /* Badge VIP Ativo (Substitui o botão quando Premium) */
+        .badge-premium-active {
+            display: none; /* Escondido por padrão */
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 1px solid rgba(16, 185, 129, 0.5); color: #ffffff;
+            padding: 12px; border-radius: 10px; text-align: center;
+            font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); animation: fadeIn 0.5s ease;
+        }
+
+        /* --- REDES SOCIAIS OFICIAIS (SVGs Injetados) --- */
+        .social-section { margin-top: auto; padding-top: 15px; }
+        .social-label { font-size: 11px; color: #8b5cf6; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 12px; display: block; text-align: center; }
+        .social-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        .social-btn {
+            flex: 1; height: 48px; border-radius: 12px; text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; border: 1px solid transparent; color: white;
+        }
+        .social-icon { height: 20px; width: 20px; fill: currentColor; transition: 0.3s; }
+
+        .discord { background: rgba(88, 101, 242, 0.1); border-color: rgba(88, 101, 242, 0.25); color: #8a96f5; }
+        .discord:hover { background: #5865F2; color: #fff; box-shadow: 0 0 15px rgba(88, 101, 242, 0.5); }
+        
+        .instagram { background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.25); color: #f472b6; }
+        .instagram:hover { background: linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%); color: #fff; box-shadow: 0 0 15px rgba(220, 39, 67, 0.5); }
+        .social-btn:hover .social-icon { transform: scale(1.1); }
+
+        /* --- RODAPÉ --- */
+        .version-box { text-align: center; padding-top: 15px; border-top: 1px solid rgba(180, 80, 255, 0.15); }
+        .v-brand { font-size: 10px; color: #52525b; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 3px; }
+        .v-number { font-size: 12px; font-weight: 800; color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.4); }
+
+        /* AJUSTES PARA PC */
+        @media (min-width: 768px) {
+            .sidebar { padding: 40px 22px; }
+            h2 { font-size: 24px; margin-bottom: 30px; }
+            .nav-card { padding: 18px; margin-bottom: 16px; }
+            .premium-container { padding: 20px; }
+            .social-btn { height: 52px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2 class="animate-item item-1" id="txt-menu-title">Evollogic Menu</h2>
+
+        <a href="setup_api.html" target="_parent" class="nav-card animate-item item-2">
+            <div class="card-content">
+                <span class="card-title">
+                    <svg style="height:16px; width:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3-3.5 3.5z"></path></svg>
+                    <span id="txt-api-title">Setup de API</span>
+                </span>
+                <span class="card-desc" id="txt-api-desc">Integre suas chaves com os encurtadores.</span>
+            </div>
+            <span class="card-arrow">❯</span>
+        </a>
+
+        <a href="config.html" target="_parent" class="nav-card animate-item item-3">
+            <div class="card-content">
+                <span class="card-title">
+                    <svg style="height:16px; width:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span id="txt-cfg-title">Configurações</span>
+                </span>
+                <span class="card-desc" id="txt-cfg-desc">Gerencie regras, preferências e perfil.</span>
+            </div>
+            <span class="card-arrow">❯</span>
+        </a>
+
+        <div class="premium-container animate-item item-4" id="premium-box">
+            <div class="premium-title">
+                <svg style="height:16px; width:16px; color:#fde68a;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span id="txt-prem-title">Auxsci Premium</span>
+            </div>
+            <div class="premium-desc" id="txt-prem-desc">Sem anúncios. Múltiplos sites. Lucro maximizado.</div>
+            
+            <a href="premium.html" target="_parent" class="btn-buy-premium" id="btn-premium">
+                <span id="txt-prem-btn">Comprar Premium</span>
+            </a>
+            
+            <div class="badge-premium-active" id="badge-premium">
+                <span id="txt-active-beta">⭐ Ativo Beta ⭐</span>
+            </div>
+        </div>
+
+        <div class="social-section animate-item item-5">
+            <span class="social-label" id="txt-social">Comunidade Evollogic</span>
+            <div class="social-group">
+                <a href="https://discord.gg/MhGKVNhYB6" target="_blank" class="social-btn discord">
+                    <svg class="social-icon" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.71-10.93,68.6,68.6,0,0,1-10.64-5.12c.91-.66,1.8-1.34,2.65-2a75.58,75.58,0,0,0,72.72,0c.85.69,1.74,1.37,2.65,2a68.42,68.42,0,0,1-10.65,5.13,74.66,74.66,0,0,0,6.71,10.92,105.73,105.73,0,0,0,31.06-18.83C129.24,49.65,123.33,26.83,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.92,46,53.8,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.16,46,96,53,91,65.69,84.69,65.69Z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/evollogic?igsh=MXFwaWlnOTM5a3NlZw==" target="_blank" class="social-btn instagram">
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M12,2.16c3.2,0,3.58,0,4.85,0.06c3.25,0.15,4.72,1.63,4.87,4.87c0.06,1.27,0.06,1.64,0.06,4.85c0,3.2,0,3.58-.06,4.85c-0.15,3.25-1.63,4.72-4.87,4.87c-1.27,0.06-1.64,0.06-4.85,0.06c-3.2,0-3.58,0-4.85-.06c-3.26-.15-4.72-1.63-4.87-4.87c-.06-1.27-.06-1.64-.06-4.85c0-3.2,0-3.58,.06-4.85c.15-3.25,1.63-4.72,4.87-4.87c1.27-.06,1.64-.06,4.85-.06m0-2C8.74,0,8.33,0.01,7.05,0.07c-4.24,.19-6.6,2.56-6.79,6.79C0.01,8.14,0,8.55,0,11.84s0.01,3.7,0.07,4.98c0.19,4.23,2.56,6.59,6.79,6.79C8.33,23.67,8.74,23.68,12,23.68s3.67,0,4.95-.07c4.24-.19,6.59-2.56,6.79-6.79C23.67,15.54,23.68,15.13,23.68,11.84s-0.01-3.7-.07-4.98c-0.19-4.24-2.56-6.59-6.79-6.79C15.67,0.01,15.26,0,12,0m0,5.77c-3.35,0-6.07,2.72-6.07,6.07s2.72,6.07,6.07,6.07,6.07-2.72,6.07-6.07-2.72-6.07-6.07-6.07m0,10.14c-2.25,0-4.07-1.82-4.07-4.07s1.82-4.07,4.07-4.07,4.07,1.82,4.07,4.07-1.82,4.07-4.07,4.07m5.92-11.45c-0.81,0-1.47,.66-1.47,1.47s.66,1.47,1.47,1.47,1.47-.66,1.47-1.47-0.66-1.47-1.47-1.47z"/></svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="version-box animate-item item-6">
+            <div class="v-brand">by Evollogic</div>
+            <div class="v-number">v1.0.9-nitro</div>
+        </div>
+    </div>
+
+    <script>
+        // --- DICIONÁRIO DE IDIOMAS ---
+        const dic = {
+            "pt": {
+                menu: "Evollogic Menu",
+                apiTitle: "Setup de API", apiDesc: "Integre suas chaves com os encurtadores.",
+                cfgTitle: "Configurações", cfgDesc: "Gerencie regras, preferências e perfil.",
+                premTitle: "Auxsci Premium", premDesc: "Sem anúncios. Múltiplos sites. Lucro maximizado.",
+                premBtn: "Comprar Premium", premActive: "⭐ Ativo Beta ⭐",
+                social: "Comunidade Evollogic"
+            },
+            "en": {
+                menu: "Evollogic Menu",
+                apiTitle: "API Setup", apiDesc: "Integrate your shortener keys.",
+                cfgTitle: "Settings", cfgDesc: "Manage rules, preferences and profile.",
+                premTitle: "Auxsci Premium", premDesc: "No ads. Multiple sites. Max profit.",
+                premBtn: "Get Premium", premActive: "⭐ Beta Active ⭐",
+                social: "Evollogic Community"
+            },
+            "es": {
+                menu: "Menú Evollogic",
+                apiTitle: "Setup de API", apiDesc: "Integra tus claves de acortadores.",
+                cfgTitle: "Configuración", cfgDesc: "Gestiona reglas, preferencias y perfil.",
+                premTitle: "Auxsci Premium", premDesc: "Sin anuncios. Múltiples sitios. Lucro máximo.",
+                premBtn: "Comprar Premium", premActive: "⭐ Activo Beta ⭐",
+                social: "Comunidad Evollogic"
+            }
+        };
+
+        // Auto-Reload para desenvolvimento
+        let lastModified = null;
+        setInterval(() => {
+            fetch(location.href, { method: 'HEAD' }).then(res => {
+                const currentModified = res.headers.get('Last-Modified');
+                if (!lastModified) lastModified = currentModified;
+                else if (lastModified !== currentModified) location.reload(); 
+            }).catch(() => {}); 
+        }, 2000);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Aplica a Tradução
+            let currentLang = localStorage.getItem('evollogic_lang') || navigator.language.substring(0, 2);
+            if (!dic[currentLang]) currentLang = "en"; 
+            
+            const txt = dic[currentLang];
+            document.getElementById('txt-menu-title').innerText = txt.menu;
+            document.getElementById('txt-api-title').innerText = txt.apiTitle;
+            document.getElementById('txt-api-desc').innerText = txt.apiDesc;
+            document.getElementById('txt-cfg-title').innerText = txt.cfgTitle;
+            document.getElementById('txt-cfg-desc').innerText = txt.cfgDesc;
+            document.getElementById('txt-prem-title').innerText = txt.premTitle;
+            document.getElementById('txt-prem-desc').innerText = txt.premDesc;
+            document.getElementById('txt-prem-btn').innerText = txt.premBtn;
+            document.getElementById('txt-active-beta').innerText = txt.premActive;
+            document.getElementById('txt-social').innerText = txt.social;
+
+            // 2. Lógica do Premium (Esconde o botão e mostra o Badge)
+            const isPremium = localStorage.getItem('evollogic_premium') === 'true';
+            if (isPremium) {
+                document.getElementById('btn-premium').style.display = 'none';
+                document.getElementById('badge-premium').style.display = 'block';
+                
+                // Dá um charme extra na caixa do Premium se ele estiver ativo
+                const premiumBox = document.getElementById('premium-box');
+                premiumBox.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                premiumBox.style.background = "rgba(16, 185, 129, 0.05)";
+                premiumBox.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.1)";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Hub - Evollogic</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #121212; 
+            color: #fff; 
+        }
+        .hidden { 
+            display: none !important; 
+        }
+        .modal { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
+        .modal-content { 
+            background: #1e1e1e; 
+            padding: 20px; 
+            border-radius: 8px; 
+            width: 300px; 
+            position: relative; 
+        }
+        .close-btn { 
+            position: absolute; 
+            top: 10px; 
+            right: 15px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: #ff4c4c; 
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        input, textarea, button { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            box-sizing: border-box; 
+            background: #2c2c2c; 
+            color: white; 
+            border: 1px solid #444; 
+            border-radius: 4px;
+        }
+        button { 
+            background: #007bff; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.3s;
+        }
+        button:hover { 
+            background: #0056b3; 
+        }
+        #ad-placeholder { 
+            background: #333; 
+            height: 100px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-bottom: 20px; 
+            position: relative; 
+            border: 1px dashed #666;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AD PLACEHOLDER -->
+    <div id="ad-placeholder">
+        <span class="close-btn" onclick="document.getElementById('ad-placeholder').style.display='none'">X</span>
+        [ Espaço do Ad / Banner ]
+    </div>
+
+    <!-- ÁREA PRINCIPAL DO HUB -->
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2>Hub - Encadeador de Links</h2>
+        <div class="form-group">
+            <label>Insira seu Texto ou Link:</label>
+            <textarea id="inputData" rows="4" placeholder="Cole o conteúdo aqui..."></textarea>
+        </div>
+        <button onclick="processarEntrada()">Gerar Encadeamento</button>
+
+        <p id="statusMensagem" class="hidden" style="color: #00ff00; margin-top: 15px; font-weight: bold; text-align: center;"></p>
+    </div>
+
+    <!-- MINI FORMULÁRIO (Configuração Inicial) -->
+    <div id="miniFormModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fecharModal()">X</span>
+            <h3>Configuração Inicial</h3>
+            <p style="font-size: 12px; color: #aaa;">Para configurar mais opções, acesse o menu de configurações. O padrão utilizado será Nível 2 e Tema Clássico.</p>
+            
+            <div class="form-group">
+                <label>Nome do Link:</label>
+                <input type="text" id="linkNome" placeholder="Ex: Script Roblox Auto-Farm">
+            </div>
+            <div class="form-group">
+                <label>Descrição:</label>
+                <textarea id="linkDesc" rows="2" placeholder="Descreva o conteúdo do link..."></textarea>
+            </div>
+            <button onclick="salvarConfigEContinuar()">Salvar e Gerar</button>
+        </div>
+    </div>
+
+    <script>
+        // Simulação do banco de dados/local storage do usuário
+        let userConfig = null; // Inicia null para forçar o formulário na primeira vez
+        let userApiKeys = { api1: "chave_linkvertise", api2: "chave_outra_api" }; 
+        let inputAtual = "";
+
+        function processarEntrada() {
+            inputAtual = document.getElementById('inputData').value.trim();
+            if(!inputAtual) {
+                alert("Erro: Insira um texto ou link antes de prosseguir!");
+                return;
+            }
+
+            const status = document.getElementById('statusMensagem');
+            status.classList.remove('hidden');
+
+            // Lógica de identificação
+            const isUrl = inputAtual.startsWith('http://') || inputAtual.startsWith('https://');
+
+            if (!isUrl) {
+                status.innerText = "⏳ Preparando texto... Redirecionando para página base.";
+            } else {
+                status.innerText = "⏳ Preparando link direto...";
+            }
+
+            // Verifica as configurações padrão
+            if (!userConfig) {
+                setTimeout(() => {
+                    document.getElementById('miniFormModal').classList.remove('hidden');
+                }, 500);
+            } else {
+                enviarParaBackend();
+            }
+        }
+
+        function salvarConfigEContinuar() {
+            const nome = document.getElementById('linkNome').value;
+            const desc = document.getElementById('linkDesc').value;
+
+            // Define a estrutura exigida
+            userConfig = {
+                nome: nome || "Sem Nome",
+                descricao: desc || "Sem Descrição",
+                nivel: 2,
+                tema: "classico",
+                ordemApis: [1, 2, 3] // Ordem de encadeamento das APIs
+            };
+
+            fecharModal();
+            document.getElementById('statusMensagem').innerText = "⏳ Configuração salva. Processando URLs pelas APIs...";
+            enviarParaBackend();
+        }
+
+        function fecharModal() {
+            document.getElementById('miniFormModal').classList.add('hidden');
+        }
+
+        function enviarParaBackend() {
+            const payload = {
+                conteudo: inputAtual,
+                chaves: userApiKeys,
+                config: userConfig
+            };
+            
+            console.log("Enviando Payload para o Backend:", payload);
+            
+            // Simulação do retorno do Backend com as URLs finais
+            setTimeout(() => {
+                document.getElementById('statusMensagem').innerText = "✅ Sucesso! URL Final gerada e pronta para uso.";
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

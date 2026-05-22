@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auxsci Hub - Evollogic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; }
+        body { background: #0a0214; color: white; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .css-background { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; background: linear-gradient(-45deg, #1a0524, #2a0845, #240a14, #0a0014); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .top-nav { position: absolute; top: 0; left: 0; width: 100%; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .btn-menu { background: rgba(147, 51, 234, 0.2); border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 12px; color: #d8b4fe; padding: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        .lang-select { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(147, 51, 234, 0.4); color: #d8b4fe; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; outline: none; cursor: pointer; backdrop-filter: blur(5px); }
+
+        .ad-banner { position: absolute; top: 80px; width: 90%; max-width: 450px; background: rgba(0, 0, 0, 0.6); border: 1px dashed rgba(236, 72, 153, 0.4); border-radius: 12px; padding: 15px; text-align: center; font-size: 11px; color: #9ca3af; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .ad-banner .close-btn { position: absolute; top: 5px; right: 10px; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 16px; }
+
+        .container { background: rgba(20, 4, 35, 0.65); padding: 40px 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(147, 51, 234, 0.15); backdrop-filter: blur(20px); border: 1px solid rgba(180, 80, 255, 0.2); text-align: center; max-width: 450px; width: 90%; animation: fadeIn 0.6s ease-out; position: relative; z-index: 10; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .system-status { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+        .status-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .status-text { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #9ca3af; }
+
+        h1 { margin-top: 0; font-size: 32px; font-weight: 900; color: #f3e8ff; margin-bottom: 10px; }
+        p { font-size: 13px; color: #a78bfa; margin-bottom: 30px; line-height: 1.5; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        textarea { width: 100%; padding: 15px; border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 12px; font-size: 14px; outline: none; background: rgba(0, 0, 0, 0.6); color: #ffffff; transition: all 0.3s; resize: vertical; min-height: 80px; }
+        textarea:focus { border-color: #c084fc; box-shadow: 0 0 20px rgba(147, 51, 234, 0.4); background: rgba(10, 0, 20, 0.8); }
+
+        button { padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, #9333ea 0%, #c084fc 100%); color: white; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3); }
+        button:hover { transform: translateY(-3px); filter: brightness(1.15); box-shadow: 0 12px 30px rgba(147, 51, 234, 0.5); }
+        button:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal.show { display: flex; animation: fadeIn 0.3s ease; }
+        .modal-content { background: #140423; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; border: 1px solid rgba(251, 191, 36, 0.4); position: relative; text-align: center; box-shadow: 0 0 40px rgba(251, 191, 36, 0.1); }
+        .modal-content h3 { color: #fde68a; margin-bottom: 5px; font-size: 20px; }
+        .modal-content p { color: #9ca3af; font-size: 12px; margin-bottom: 20px; }
+        .modal input { width: 100%; padding: 14px; border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 10px; font-size: 14px; outline: none; background: rgba(0, 0, 0, 0.8); color: #fff; margin-bottom: 20px; text-align: center; }
+        .modal input:focus { border-color: #f59e0b; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+        .btn-magic-save { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 5px 20px rgba(245, 158, 11, 0.3); width: 100%; }
+
+        .output-box { display: none; margin-top: 20px; border-radius: 12px; font-size: 13px; text-align: center; overflow: hidden; }
+        .output-box.show { display: block; animation: fadeIn 0.4s ease; }
+        
+        .result-link-container { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; margin: 15px 0; word-break: break-all; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .result-link-container a { color: #6ee7b7; text-decoration: none; font-size: 15px; font-weight: bold; }
+        .result-link-container a:hover { text-decoration: underline; }
+
+        .details-dropdown { text-align: left; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(147, 51, 234, 0.3); }
+        .details-dropdown summary { cursor: pointer; color: #c084fc; font-weight: bold; outline: none; user-select: none; margin-bottom: 8px; }
+        .details-dropdown p { color: #d1d5db; font-size: 11px; margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .details-dropdown p:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .details-dropdown span { float: right; font-weight: bold; color: #fff; }
+
+        .badge-text-host { display: none; background: #3b82f6; color: white; font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        .badge-text-host.show { display: inline-block; }
+
+    </style>
+</head>
+<body>
+
+    <div class="css-background"></div>
+
+    <div class="top-nav">
+        <a href="side.html" class="btn-menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </a>
+        <select class="lang-select" id="lang-selector" onchange="changeLanguage()">
+            <option value="pt">🇧🇷 PT</option>
+            <option value="en">🇺🇸 EN</option>
+            <option value="es">🇪🇸 ES</option>
+        </select>
+    </div>
+
+    <div class="ad-banner" id="ad-banner">
+        <span class="close-btn" onclick="document.getElementById('ad-banner').style.display='none'">×</span>
+        [ Espaço do Ad / Banner ]<br>Atualize para Premium para remover.
+    </div>
+
+    <div class="container">
+        <div class="system-status">
+            <div class="status-dot" id="sys-dot"></div>
+            <span class="status-text" id="txt-status">Aguardando APIs</span>
+        </div>
+
+        <h1 id="txt-title">Auxsci Hub</h1>
+        <p id="txt-desc">Transforme seus links e scripts em lucro agora mesmo através do ecossistema Evollogic.</p>
+        
+        <span class="badge-text-host" id="badge-host">📄 Texto Detectado: Página Auto-Gerada</span>
+
+        <div class="input-group">
+            <textarea id="linkInput" placeholder="Cole seu link de destino ou código de script aqui..." required></textarea>
+            <button onclick="iniciarProcesso()" id="txt-btn">Monetizar Conteúdo</button>
+        </div>
+
+        <div class="output-box" id="output-box"></div>
+    </div>
+
+    <div id="miniFormModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" style="position:absolute; top:10px; right:15px; cursor:pointer; color:#ef4444; font-weight:bold;" onclick="document.getElementById('miniFormModal').classList.remove('show')">X</span>
+            <h3 id="txt-modal-title">Configuração Inteligente</h3>
+            <p id="txt-modal-desc">Identificamos o uso da variável <b>{}</b>. Qual é o nome do jogo/tema deste conteúdo?</p>
+            <input type="text" id="magicInput" placeholder="Ex: Blox Fruits">
+            <button class="btn-magic-save" onclick="construirPayloadBackend()">
+                <span id="txt-modal-btn">Aplicar & Gerar Link</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const dic = {
+            "pt": {
+                title: "Auxsci Hub", desc: "Transforme seus links e scripts em lucro agora mesmo através do ecossistema Evollogic.",
+                input: "Cole seu link de destino ou código de script aqui...", btn: "Gerar Encadeamento",
+                sysOff: "APIs Ausentes", sysOn: "Sistema Pronto",
+                errLink: "Por favor, insira conteúdo válido!", errApi: "Erro: Configure pelo menos uma API no Menu!",
+                modalTitle: "Variável Mágica", modalDesc: "Identificamos o uso da variável <b>{}</b> na sua configuração global. Qual é o nome do jogo/tema deste conteúdo?",
+                modalPlaceholder: "Ex: Blox Fruits", modalBtn: "Aplicar & Gerar",
+                statusProcessing: "⏳ Processando...", textHost: "📄 Texto Detectado: Página Auto-Gerada"
+            },
+            "en": {
+                title: "Auxsci Hub", desc: "Turn your links and scripts into profit right now through the Evollogic ecosystem.",
+                input: "Paste your destination link or script code here...", btn: "Generate Chain",
+                sysOff: "Missing APIs", sysOn: "System Ready",
+                errLink: "Please enter valid content!", errApi: "Error: Setup at least one API in the Menu!",
+                modalTitle: "Magic Variable", modalDesc: "We detected the variable <b>{}</b> in your config. What is the game/topic?",
+                modalPlaceholder: "Ex: Blox Fruits", modalBtn: "Apply & Generate",
+                statusProcessing: "⏳ Processing...", textHost: "📄 Text Detected: Auto-Generated Page"
+            },
+            "es": {
+                title: "Auxsci Hub", desc: "Convierte tus enlaces y scripts en ganancias a través del ecosistema Evollogic.",
+                input: "Pega tu enlace de destino o código de script aquí...", btn: "Generar Cadena",
+                sysOff: "APIs Faltantes", sysOn: "Sistema Listo",
+                errLink: "¡Inserta contenido válido!", errApi: "Error: ¡Configura al menos una API en el Menú!",
+                modalTitle: "Variable Mágica", modalDesc: "Detectamos la variable <b>{}</b> en tu configuración. ¿Cuál es el nombre del juego/tema?",
+                modalPlaceholder: "Ej: Blox Fruits", modalBtn: "Aplicar y Generar",
+                statusProcessing: "⏳ Procesando...", textHost: "📄 Texto Detectado: Página Auto-Generada"
+            }
+        };
+
+        let currentLang = localStorage.getItem('evollogic_lang') || navigator.language.substring(0, 2);
+        if (!dic[currentLang]) currentLang = "en"; 
+        
+        let systemReady = false;
+        let globalConfig = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById("lang-selector").value = currentLang;
+            const isPremium = localStorage.getItem('evollogic_premium') === 'true';
+            if(isPremium) document.getElementById('ad-banner').style.display = 'none';
+
+            applyTranslations();
+            checkSystemStatus();
+
+            document.getElementById('linkInput').addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                const isUrl = val.startsWith('http://') || val.startsWith('https://');
+                const badge = document.getElementById('badge-host');
+                if (val.length > 0 && !isUrl) {
+                    badge.classList.add('show');
+                } else {
+                    badge.classList.remove('show');
+                }
+            });
+        });
+
+        function applyTranslations() {
+            const txt = dic[currentLang];
+            document.getElementById("txt-title").innerText = txt.title;
+            document.getElementById("txt-desc").innerText = txt.desc;
+            document.getElementById("linkInput").placeholder = txt.input;
+            document.getElementById("txt-btn").innerText = txt.btn;
+            document.getElementById("badge-host").innerText = txt.textHost;
+            
+            document.getElementById("txt-modal-title").innerText = txt.modalTitle;
+            document.getElementById("txt-modal-desc").innerHTML = txt.modalDesc;
+            document.getElementById("magicInput").placeholder = txt.modalPlaceholder;
+            document.getElementById("txt-modal-btn").innerText = txt.modalBtn;
+            
+            checkSystemStatus();
+        }
+
+        function changeLanguage() {
+            currentLang = document.getElementById("lang-selector").value;
+            localStorage.setItem('evollogic_lang', currentLang);
+            applyTranslations();
+        }
+
+        function checkSystemStatus() {
+            const savedStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
+            const txt = dic[currentLang];
+            const dot = document.getElementById('sys-dot');
+            const statusTxt = document.getElementById('txt-status');
+            
+            systemReady = Object.values(savedStates).some(estado => estado === true);
+
+            if (systemReady) {
+                dot.classList.add('active'); statusTxt.innerText = txt.sysOn; statusTxt.style.color = "#10b981";
+            } else {
+                dot.classList.remove('active'); statusTxt.innerText = txt.sysOff; statusTxt.style.color = "#ef4444";
+            }
+        }
+
+        function iniciarProcesso() {
+            const txt = dic[currentLang];
+            const inputData = document.getElementById('linkInput').value.trim();
+            const outBox = document.getElementById('output-box');
+            outBox.classList.remove('show');
+
+            if (!inputData) { alert(txt.errLink); return; }
+            if (!systemReady) { alert(txt.errApi); return; }
+
+            globalConfig = JSON.parse(localStorage.getItem('evollogic_global_configs')) || {};
+            const titleHasVar = (globalConfig.title || "").includes("{}");
+            const descHasVar = (globalConfig.desc || "").includes("{}");
+
+            if (titleHasVar || descHasVar) {
+                document.getElementById('magicInput').value = "";
+                document.getElementById('miniFormModal').classList.add('show');
+            } else {
+                construirPayloadBackend();
+            }
+        }
+
+        function construirPayloadBackend() {
+            const txt = dic[currentLang];
+            document.getElementById('miniFormModal').classList.remove('show');
+            
+            const btn = document.getElementById('txt-btn');
+            btn.innerText = txt.statusProcessing;
+            btn.disabled = true;
+
+            const rawInput = document.getElementById('linkInput').value.trim();
+            const magicWord = document.getElementById('magicInput').value.trim();
+
+            let finalTargetUrl = rawInput;
+            const isUrl = rawInput.startsWith('http://') || rawInput.startsWith('https://');
+
+            if (!isUrl) {
+                const textId = Math.random().toString(36).substring(2, 8);
+                localStorage.setItem('evollogic_paste_' + textId, rawInput);
+                finalTargetUrl = window.location.origin + '/paste.html?id=' + textId;
+            }
+
+            let finalGlobal = { ...globalConfig };
+            if(magicWord !== "") {
+                if(finalGlobal.title) finalGlobal.title = finalGlobal.title.replace(/{}/g, magicWord);
+                if(finalGlobal.desc) finalGlobal.desc = finalGlobal.desc.replace(/{}/g, magicWord);
+            }
+
+            // O SEGREDO ESTÁ AQUI: Cruzar a ordem com os botões ativados!
+            const rawOrder = JSON.parse(localStorage.getItem('evollogic_provider_order')) || ['linkvertise'];
+            const apiStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
+            
+            // Filtra a lista removendo qualquer provedor que esteja desativado (false)
+            const realOrder = rawOrder.filter(provider => apiStates[provider] === true);
+
+            if (realOrder.length === 0) {
+                alert("Nenhum provedor ativo foi encontrado. Ative pelo menos um no menu!");
+                btn.innerText = txt.btn;
+                btn.disabled = false;
+                return;
+            }
+
+            const payload = {
+                content_type: isUrl ? 'url' : 'text',
+                original_input: rawInput,
+                target_url: finalTargetUrl, 
+                magic_word: magicWord,
+                api_keys: JSON.parse(localStorage.getItem('evollogic_api_keys')) || {},
+                api_states: apiStates,
+                order: realOrder, // Agora envia a ordem LIMPA pro Python!
+                global_visuals: finalGlobal,
+                advanced_configs: JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {}
+            };
+
+            fetch('http://localhost:5000', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const outBox = document.getElementById('output-box');
+                
+                if (data.status === "success") {
+                    outBox.style.background = "rgba(16, 185, 129, 0.1)";
+                    outBox.style.border = "1px dashed #10b981";
+                    
+                    const provedorUsado = realOrder[0] ? realOrder[0].toUpperCase() : 'DESCONHECIDO';
+
+                    outBox.innerHTML = `
+                        <h3 style="color: #10b981; margin-bottom: 5px;">🎉 Monetização Concluída!</h3>
+                        <p style="color: #6ee7b7; font-size: 11px;">Link final pronto para compartilhamento:</p>
+                        
+                        <div class="result-link-container">
+                            <a href="${data.final_url}" target="_blank">${data.final_url}</a>
+                        </div>
+
+                        <details class="details-dropdown">
+                            <summary>👁️ Ver Detalhes do Roteamento</summary>
+                            <p>Status da API: <span style="color: #10b981;">Conectado</span></p>
+                            <p>Provedor Master: <span style="color: #c084fc;">${provedorUsado}</span></p>
+                            <p>Destino Original: <span style="font-weight: normal; font-size: 10px;">${finalTargetUrl.substring(0, 45)}...</span></p>
+                        </details>
+                    `;
+                } else {
+                    outBox.style.background = "rgba(239, 68, 68, 0.1)";
+                    outBox.style.border = "1px dashed #ef4444";
+                    outBox.innerHTML = `<b style="color: #ef4444; font-size: 15px;">⚠️ Erro do Servidor:</b><br><br><span style="color: #fca5a5;">${data.message}</span>`;
+                }
+                outBox.classList.add('show');
+            })
+            .catch(error => {
+                const outBox = document.getElementById('output-box');
+                outBox.style.background = "rgba(239, 68, 68, 0.1)";
+                outBox.style.border = "1px dashed #ef4444";
+                outBox.innerHTML = `<b style="color: #ef4444; font-size: 15px;">❌ Falha na Conexão</b><br><br><span style="color: #fca5a5;">Não foi possível acessar o backend. Verifique se o backend.py está rodando no terminal.</span>`;
+                outBox.classList.add('show');
+            })
+            .finally(() => {
+                btn.innerText = txt.btn;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

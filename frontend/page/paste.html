@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Conteúdo Desbloqueado - Evollogic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { 
+            background: #0a0214; color: white; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; padding: 20px; overflow: hidden;
+        }
+
+        .css-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3;
+            background: linear-gradient(-45deg, #1a0524, #2a0845, #240a14, #0a0014);
+            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* Container Principal (Oculto no início) */
+        .container {
+            background: rgba(20, 4, 35, 0.85); padding: 25px; border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border: 1px solid rgba(180, 80, 255, 0.3);
+            width: 100%; max-width: 600px; z-index: 10; margin-top: 20px;
+            display: none; flex-direction: column; gap: 15px; animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { text-align: center; color: #d8b4fe; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        textarea {
+            width: 100%; height: 350px; padding: 15px; border-radius: 12px;
+            background: #000; color: #10b981; border: 1px solid rgba(147, 51, 234, 0.4);
+            font-family: monospace; font-size: 13px; resize: none; outline: none; line-height: 1.5;
+        }
+
+        .btn-copy {
+            padding: 16px; border: none; border-radius: 12px; width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
+        }
+        .btn-copy:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        .btn-copy.copied { background: #3b82f6; box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3); }
+
+        /* OVERLAYS (Ad Wall e AdBlock) */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 2, 20, 0.95); z-index: 1000; display: none;
+            flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .overlay.active { display: flex; }
+
+        .overlay h3 { color: #fff; font-size: 24px; margin-bottom: 10px; }
+        .overlay p { color: #a1a1aa; font-size: 14px; margin-bottom: 20px; max-width: 400px; }
+
+        /* Estilo da Barreira de Ad */
+        .fake-ad-space {
+            width: 100%; max-width: 300px; height: 250px; background: rgba(0,0,0,0.8);
+            border: 1px dashed rgba(251, 191, 36, 0.5); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; color: #fbbf24;
+            font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 20px;
+        }
+
+        .btn-unlock {
+            padding: 15px 30px; border: none; border-radius: 12px;
+            background: #4b5563; color: #9ca3af; font-size: 14px; font-weight: 800; text-transform: uppercase;
+            cursor: not-allowed; transition: 0.3s;
+        }
+        .btn-unlock.ready {
+            background: linear-gradient(135deg, #9333ea 0%, #c084fc 100%);
+            color: white; cursor: pointer; box-shadow: 0 5px 20px rgba(147, 51, 234, 0.4);
+        }
+        .btn-unlock.ready:hover { transform: scale(1.05); }
+
+        /* Estilo do Alerta de AdBlock */
+        .adblock-warning { border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.1); padding: 30px; border-radius: 20px; }
+        .adblock-warning h3 { color: #ef4444; }
+
+    </style>
+</head>
+<body>
+
+    <div class="css-background"></div>
+
+    <div class="overlay" id="adblock-overlay">
+        <div class="adblock-warning">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom: 15px;"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            <h3>AdBlock Detectado!</h3>
+            <p>Nosso sistema é gratuito graças aos anúncios. Para acessar seu conteúdo, por favor, desative o bloqueador de anúncios e recarregue a página.</p>
+        </div>
+    </div>
+
+    <div class="overlay" id="ad-wall-overlay">
+        <h3>Aguarde um momento</h3>
+        <p>Apoie nosso trabalho visualizando este anúncio rápido para liberar o conteúdo.</p>
+        
+        <div class="fake-ad-space">
+            [ Espaço do Anúncio (AdSense / Outros) ]
+        </div>
+
+        <button class="btn-unlock" id="btnUnlock" disabled>Aguarde 5 segundos...</button>
+    </div>
+
+    <div class="container" id="main-content">
+        <h2>Conteúdo Desbloqueado</h2>
+        <textarea id="textContent" readonly>Carregando conteúdo...</textarea>
+        <button class="btn-copy" id="copyBtn" onclick="copiarTexto()">Copiar Todo o Texto</button>
+    </div>
+
+    <div class="adsbox ad-placement doubleclick" id="ad-bait" style="width: 1px; height: 1px; position: absolute; left: -9999px;"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const textId = urlParams.get('id');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Passo 1: Checa Adblock após um breve delay
+            setTimeout(checkAdblock, 300);
+        });
+
+        function checkAdblock() {
+            const bait = document.getElementById('ad-bait');
+            // Se o navegador ou extensão bloqueou o elemento ou escondeu
+            if (!bait || bait.offsetHeight === 0 || window.getComputedStyle(bait).display === 'none') {
+                document.getElementById('adblock-overlay').classList.add('active');
+            } else {
+                iniciarFluxo();
+            }
+        }
+
+        function iniciarFluxo() {
+            if (!textId) {
+                mostrarConteudo("Erro: Nenhum ID fornecido na URL.");
+                return;
+            }
+
+            // Verifica o Cookie/LocalStorage
+            const isUnlocked = localStorage.getItem('evollogic_unlocked_' + textId);
+
+            if (isUnlocked === 'true') {
+                // Já viu o anúncio antes, pula direto pro conteúdo!
+                carregarETexto();
+            } else {
+                // Primeira vez, mostra a barreira de anúncio
+                document.getElementById('ad-wall-overlay').classList.add('active');
+                iniciarContagem();
+            }
+        }
+
+        function iniciarContagem() {
+            let tempo = 5;
+            const btn = document.getElementById('btnUnlock');
+
+            const intervalo = setInterval(() => {
+                tempo--;
+                btn.innerText = `Aguarde ${tempo} segundos...`;
+
+                if (tempo <= 0) {
+                    clearInterval(intervalo);
+                    btn.innerText = "Liberar Conteúdo";
+                    btn.classList.add('ready');
+                    btn.disabled = false;
+                    
+                    // Adiciona o evento de clique para liberar
+                    btn.onclick = () => {
+                        // Salva para não precisar ver o anúncio de novo neste texto
+                        localStorage.setItem('evollogic_unlocked_' + textId, 'true');
+                        document.getElementById('ad-wall-overlay').classList.remove('active');
+                        carregarETexto();
+                    };
+                }
+            }, 1000);
+        }
+
+        function carregarETexto() {
+            // Tira o overflow oculto do body para permitir scroll se necessário
+            document.body.style.overflow = 'auto';
+            
+            // Busca o texto salvo do Hub (ou faria um fetch no banco de dados real)
+            const savedText = localStorage.getItem('evollogic_paste_' + textId);
+            
+            if (savedText) {
+                mostrarConteudo(savedText);
+            } else {
+                mostrarConteudo("Erro: Texto não encontrado ou já expirou.");
+            }
+        }
+
+        function mostrarConteudo(texto) {
+            document.getElementById('textContent').value = texto;
+            document.getElementById('main-content').style.display = 'flex';
+        }
+
+        function copiarTexto() {
+            const textArea = document.getElementById('textContent');
+            textArea.select();
+            textArea.setSelectionRange(0, 99999);
+
+            navigator.clipboard.writeText(textArea.value).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerText = "✅ Copiado com Sucesso!";
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerText = "Copiar Todo o Texto";
+                    btn.classList.remove('copied');
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>
