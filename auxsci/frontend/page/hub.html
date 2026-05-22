@@ -94,7 +94,7 @@
             .container { max-width: 550px; padding: 50px 40px; }
             h1 { font-size: 38px; } p { font-size: 17px; margin-bottom: 40px; }
             input { padding: 22px; font-size: 18px; } button.btn-primary { padding: 20px; font-size: 18px; }
-            .sidebar-frame { width: 400px; } /* Painel mais largo no PC */
+            .sidebar-frame { width: 400px; }
         }
     </style>
 </head>
@@ -184,11 +184,11 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
             
-            // Alterna a classe 'active' em todos os elementos
             menuBtn.classList.toggle('active');
             sidebar.classList.toggle('active');
             backdrop.classList.toggle('active');
         }
     </script>
-</body>
+
+    </body>
 </html>
