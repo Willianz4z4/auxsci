@@ -27,6 +27,24 @@
             background: linear-gradient(135deg, rgba(15, 5, 25, 0.7) 0%, rgba(5, 0, 10, 0.85) 100%); z-index: -1;
         }
 
+        /* Botão de Idioma e Menu */
+        .top-btn {
+            position: fixed; top: 25px; height: 50px;
+            background: rgba(30, 10, 50, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 14px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 100; transition: all 0.3s ease; color: #d8b4fe; font-weight: bold;
+        }
+        .top-btn:hover { background: rgba(147, 51, 234, 0.3); color: white; }
+        
+        .lang-btn { left: 25px; padding: 0 20px; gap: 8px; font-size: 14px; }
+        .hamburger-menu { right: 25px; width: 50px; flex-direction: column; gap: 6px; }
+        
+        .hamburger-menu span { width: 24px; height: 2px; background-color: #d8b4fe; border-radius: 2px; transition: 0.3s; }
+        .hamburger-menu.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); background-color: #fff; }
+        .hamburger-menu.active span:nth-child(2) { opacity: 0; }
+        .hamburger-menu.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background-color: #fff; }
+
         /* Barra Lateral */
         .sidebar-backdrop {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -38,23 +56,9 @@
         .sidebar-frame {
             position: fixed; top: 0; right: 0; width: 320px; max-width: 85vw; height: 100vh;
             border: none; z-index: 90; transform: translateX(100%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: transparent;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: transparent;
         }
         .sidebar-frame.active { transform: translateX(0); }
-
-        /* Menu Hambúrguer */
-        .hamburger-menu {
-            position: fixed; top: 25px; right: 25px; width: 50px; height: 50px;
-            background: rgba(30, 10, 50, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 14px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
-            cursor: pointer; z-index: 100; transition: all 0.3s ease;
-        }
-        .hamburger-menu span { width: 24px; height: 2px; background-color: #d8b4fe; border-radius: 2px; transition: 0.3s; }
-        .hamburger-menu.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); background-color: #fff; }
-        .hamburger-menu.active span:nth-child(2) { opacity: 0; }
-        .hamburger-menu.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background-color: #fff; }
 
         /* Caixa Central */
         .main-wrapper { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
@@ -109,7 +113,11 @@
     <div class="sidebar-backdrop" id="backdrop" onclick="toggleMenu()"></div>
     <iframe src="side.html" class="sidebar-frame" id="sidebar"></iframe>
 
-    <div class="hamburger-menu" onclick="toggleMenu()" id="menu-btn">
+    <div class="top-btn lang-btn" onclick="changeLanguage()">
+        🌐 <span id="current-lang">PT</span>
+    </div>
+
+    <div class="top-btn hamburger-menu" onclick="toggleMenu()" id="menu-btn">
         <span></span><span></span><span></span>
     </div>
 
@@ -131,49 +139,90 @@
         const video = document.getElementById('bg-video');
         video.addEventListener('loadeddata', () => { video.style.opacity = '0.5'; });
 
+        // --- SISTEMA DE TRADUÇÃO ---
         const dicionario = {
             "pt": { title: "Auxsci Hub", desc: "Insira o que deseja encurtar e comece a monetizar seus acessos.", placeholder: "Cole o que deseja encurtar...", btn1: "Encurtar e Monetizar", alertVazio: "Insira algo para encurtar antes!", alertSucesso: "Enviado: ", processando: "Aguarde..." },
-            "en": { title: "Auxsci Hub", desc: "Insert what you want to shorten and start monetizing your traffic.", placeholder: "Paste what you want to shorten...", btn1: "Shorten & Monetize", alertVazio: "Insert something to shorten first!", alertSucesso: "Sent: ", processando: "Wait..." }
+            "en": { title: "Auxsci Hub", desc: "Insert what you want to shorten and start monetizing your traffic.", placeholder: "Paste what you want to shorten...", btn1: "Shorten & Monetize", alertVazio: "Insert something to shorten first!", alertSucesso: "Sent: ", processando: "Wait..." },
+            "es": { title: "Auxsci Hub", desc: "Inserta lo que deseas acortar y comienza a monetizar tu tráfico.", placeholder: "Pega lo que deseas acortar...", btn1: "Acortar y Monetizar", alertVazio: "¡Inserta algo para acortar primero!", alertSucesso: "Enviado: ", processando: "Espere..." }
         };
 
-        let lang = navigator.language.substring(0, 2) === "en" ? "en" : "pt";
-        const txt = dicionario[lang];
+        const langs = ["pt", "en", "es"];
+        let currentLangIndex = 0;
 
-        window.onload = () => {
+        function applyLanguage(langCode) {
+            const txt = dicionario[langCode];
             document.getElementById("txt-title").innerText = txt.title;
             document.getElementById("txt-desc").innerText = txt.desc;
             document.getElementById("linkInput").setAttribute("placeholder", txt.placeholder);
             document.getElementById("txt-btn1").innerText = txt.btn1;
+            document.getElementById("current-lang").innerText = langCode.toUpperCase();
+            localStorage.setItem('pref_lang', langCode);
+        }
+
+        function changeLanguage() {
+            currentLangIndex = (currentLangIndex + 1) % langs.length;
+            applyLanguage(langs[currentLangIndex]);
+        }
+
+        // --- INICIALIZAÇÃO DA PÁGINA ---
+        window.onload = () => {
+            // Recupera idioma salvo
+            let savedLang = localStorage.getItem('pref_lang');
+            if (!savedLang) savedLang = navigator.language.substring(0, 2) === "en" ? "en" : "pt";
+            if (!langs.includes(savedLang)) savedLang = "pt";
+            currentLangIndex = langs.indexOf(savedLang);
+            applyLanguage(savedLang);
+
+            // Recupera texto digitado anteriormente (Auto-Save)
+            const savedInput = localStorage.getItem('auxsci_draft_link');
+            if (savedInput) document.getElementById('linkInput').value = savedInput;
         };
 
+        // Salva o texto em tempo real a cada letra digitada
+        document.getElementById('linkInput').addEventListener('input', (e) => {
+            localStorage.setItem('auxsci_draft_link', e.target.value);
+        });
+
+        // --- SISTEMA DE ENCURTAR E MONETIZAR ---
         function enviarEncurtador() {
             const input = document.getElementById('linkInput');
             const texto = input.value.trim();
-            if (texto === "") return alert(txt.alertVazio);
+            const currentTxt = dicionario[langs[currentLangIndex]];
 
-            // ========================================================
-            // BYPASS DE BLOQUEADOR DE POP-UP (Injeção Forçada)
-            // ========================================================
-            const adLink = document.createElement('a');
-            adLink.href = "https://poetrywishing.com/j999d3smpi?key=e86272e4e626290adf8acfa12599b9e9";
-            adLink.target = "_blank";
-            adLink.rel = "noopener noreferrer";
-            document.body.appendChild(adLink);
-            adLink.click();
-            document.body.removeChild(adLink);
-            // ========================================================
+            if (texto === "") return alert(currentTxt.alertVazio);
+
+            // GATILHO DO ANÚNCIO (Com Frequency Cap de 12 horas)
+            const adShownTime = localStorage.getItem('ad_last_shown');
+            const now = new Date().getTime();
+            const dozeHorasEmMs = 12 * 60 * 60 * 1000;
+
+            if (!adShownTime || (now - parseInt(adShownTime)) > dozeHorasEmMs) {
+                const adLink = document.createElement('a');
+                adLink.href = "https://poetrywishing.com/j999d3smpi?key=e86272e4e626290adf8acfa12599b9e9";
+                adLink.target = "_blank";
+                adLink.rel = "noopener noreferrer";
+                document.body.appendChild(adLink);
+                adLink.click();
+                document.body.removeChild(adLink);
+                
+                // Registra o momento em que o anúncio abriu
+                localStorage.setItem('ad_last_shown', now.toString());
+            }
 
             const btn = document.getElementById("txt-btn1");
             const textoAntigo = btn.innerText;
-            btn.innerText = txt.processando;
+            btn.innerText = currentTxt.processando;
             
+            // Simulação do backend processando
             setTimeout(() => {
-                alert(txt.alertSucesso + texto);
+                alert(currentTxt.alertSucesso + texto);
                 btn.innerText = textoAntigo;
                 input.value = ""; 
+                localStorage.removeItem('auxsci_draft_link'); // Limpa a memória após sucesso
             }, 1000);
         }
 
+        // --- BARRA LATERAL ---
         function toggleMenu() {
             document.getElementById('menu-btn').classList.toggle('active');
             document.getElementById('sidebar').classList.toggle('active');
