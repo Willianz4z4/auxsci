@@ -16,14 +16,14 @@ const HEADERS_PADRAO = {
 
 async function callLootlabs(payload, key, title, url, advCfg) {
     advCfg = safeDict(advCfg);
-    const data = { 
-        title: title || "Link", 
-        url: url, 
-        tier_id: parseInt(advCfg.tier) || 1, 
-        number_of_tasks: parseInt(advCfg.tasks) || 3, 
-        theme: parseInt(advCfg.theme) || 1 
+    const data = {
+        title: title || "Link",
+        url: url,
+        tier_id: parseInt(advCfg.tier) || 1,
+        number_of_tasks: parseInt(advCfg.tasks) || 3,
+        theme: parseInt(advCfg.theme) || 1
     };
-    
+
     try {
         const response = await axios.post("https://creators.lootlabs.gg/api/public/content_locker", data, {
             headers: { ...HEADERS_PADRAO, "Authorization": `Bearer ${key}` },
@@ -42,13 +42,13 @@ async function callLootlabs(payload, key, title, url, advCfg) {
 async function callWorkink(payload, key, title, url, advCfg) {
     advCfg = safeDict(advCfg);
     const data = { title: title || "Link", url: url };
-    
+
     try {
         const response = await axios.post("https://work.ink/api/v1/link", data, {
-            headers: { 
-                ...HEADERS_PADRAO, 
+            headers: {
+                ...HEADERS_PADRAO,
                 "X-API-KEY": key,
-                "Authorization": `Bearer ${key}` // Enviamos nos dois formatos para forçar a leitura
+                "Authorization": `Bearer ${key}`
             },
             timeout: 15000
         });
@@ -57,8 +57,7 @@ async function callWorkink(payload, key, title, url, advCfg) {
         if (error.response) {
             let errBody = error.response.data;
             let strBody = typeof errBody === 'string' ? errBody : JSON.stringify(errBody);
-            
-            // O Raio-X em Ação:
+
             if (strBody.toLowerCase().includes("cloudflare") || strBody.includes("<html")) {
                 throw new Error("Bloqueio Cloudflare! O Work.ink está banindo IPs de nuvem (Railway).");
             }
@@ -90,7 +89,10 @@ app.post('/', async (req, res) => {
         if (!req.body || Object.keys(req.body).length === 0) throw new Error("Corpo vazio.");
 
         const payload = safeDict(req.body);
-        const order = Array.isArray(payload.order) ? payload.order : [];
+        
+        // CORREÇÃO 1: Inverte a ordem recebida para gerar a cascata correta de links (de trás para frente)
+        const order = Array.isArray(payload.order) ? [...payload.order].reverse() : [];
+        
         const keys = safeDict(payload.api_keys);
         const advConfigs = safeDict(payload.advanced_configs);
         const globalVisuals = safeDict(payload.global_visuals);
@@ -118,12 +120,14 @@ app.post('/', async (req, res) => {
                     else throw new Error("API não retornou a URL.");
                 }
             } catch (err) {
-                return res.status(200).json({ status: "error", message: `[${provider.toUpperCase()}] ${err.message}` });
+                // CORREÇÃO 2: Substituído o 'return' por 'continue' para que uma API quebrada não mate os outros links válidos
+                console.error(`[${provider.toUpperCase()}] Falha na API: ${err.message}`);
+                continue;
             }
         }
 
         if (currentUrl === originalUrl) {
-            res.status(200).json({ status: "error", message: "Nenhuma modificação pôde ser feita." });
+            res.status(200).json({ status: "error", message: "Nenhuma modificação pôde ser feita devido a falhas nas APIs." });
         } else {
             res.status(200).json({ status: "success", final_url: currentUrl });
         }
