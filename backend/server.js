@@ -7,26 +7,25 @@ app.use(cors());
 
 const safeDict = (obj) => (typeof obj === 'object' && obj !== null && !Array.isArray(obj)) ? obj : {};
 
+// CABEÇALHO DE DISFARCE (Engana o Cloudflare do Work.ink)
+const HEADERS_PADRAO = {
+    "Content-Type": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "application/json"
+};
+
 async function callLootlabs(payload, key, title, url, advCfg) {
     advCfg = safeDict(advCfg);
-    const data = {
-        title: title || "Link",
-        url: url,
-        tier_id: parseInt(advCfg.tier) || 1,
-        number_of_tasks: parseInt(advCfg.tasks) || 3,
-        theme: parseInt(advCfg.theme) || 1
-    };
+    const data = { title: title || "Link", url: url, tier_id: parseInt(advCfg.tier) || 1, number_of_tasks: parseInt(advCfg.tasks) || 3, theme: parseInt(advCfg.theme) || 1 };
     
     const response = await fetch("https://creators.lootlabs.gg/api/public/content_locker", {
         method: "POST",
-        headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+        headers: { ...HEADERS_PADRAO, "Authorization": `Bearer ${key}` },
         body: JSON.stringify(data)
     });
     
     const resData = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(resData.message || `Recusado com status ${response.status}`);
-    }
+    if (!response.ok) throw new Error(resData.message || `Recusado com status ${response.status}`);
     return resData;
 }
 
@@ -36,20 +35,16 @@ async function callWorkink(payload, key, title, url, advCfg) {
     
     const response = await fetch("https://api.work.ink/v1/links", {
         method: "POST",
-        headers: { "X-API-KEY": key, "Content-Type": "application/json" },
+        headers: { ...HEADERS_PADRAO, "X-API-KEY": key },
         body: JSON.stringify(data)
     });
     
     const resData = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(resData.error || resData.message || `Recusado com status ${response.status}`);
-    }
+    if (!response.ok) throw new Error(resData.error || resData.message || `Recusado com status ${response.status}`);
     return resData;
 }
 
-// --------------------------------------------------------
-// ROTA DE PING / VALIDAÇÃO
-// --------------------------------------------------------
+// --- ROTA DE PING PARA O SETUP_API ---
 app.post('/ping', async (req, res) => {
     const { provider, key } = req.body;
     try {
@@ -67,9 +62,7 @@ app.post('/ping', async (req, res) => {
     }
 });
 
-// --------------------------------------------------------
-// ROTA PRINCIPAL DE FORJA (LINK INCEPTION)
-// --------------------------------------------------------
+// --- ROTA PRINCIPAL (FÁBRICA DE LINKS) ---
 app.post('/', async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) throw new Error("Corpo vazio.");
@@ -94,31 +87,25 @@ app.post('/', async (req, res) => {
                 if (provider === 'lootlabs') {
                     const result = await callLootlabs(payload, keys.lootlabs, title, currentUrl, advConfigs.lootlabs);
                     let lootUrl = (result.message && Array.isArray(result.message)) ? result.message[0]?.loot_url : result.message?.loot_url;
-                    
                     if (lootUrl) currentUrl = lootUrl;
                     else throw new Error("A API não devolveu o link. Resposta: " + JSON.stringify(result));
-
                 } else if (provider === 'workink') {
                     const result = await callWorkink(payload, keys.workink, title, currentUrl, advConfigs.workink);
-                    
                     if (result.url) currentUrl = result.url;
                     else throw new Error("A API não devolveu o link. Resposta: " + JSON.stringify(result));
                 }
             } catch (err) {
-                // AQUI ESTÁ A MÁGICA: Em vez de pular, ele cancela a forja e grita o erro na tela!
                 return res.status(200).json({ status: "error", message: `[${provider.toUpperCase()}] ${err.message}` });
             }
         }
 
-        if (currentUrl === originalUrl) {
-            res.status(200).json({ status: "error", message: "Erro: Verifique as chaves no Setup." });
-        } else {
-            res.status(200).json({ status: "success", final_url: currentUrl });
-        }
+        if (currentUrl === originalUrl) res.status(200).json({ status: "error", message: "Erro de processamento nas chaves." });
+        else res.status(200).json({ status: "success", final_url: currentUrl });
+        
     } catch (error) {
         res.status(200).json({ status: "error", message: `Erro interno: ${error.message}` });
     }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Evollogic V10.2 (Debug API) na porta ${PORT}!`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Evollogic V10.3 (Anti-Bot) na porta ${PORT}!`));
