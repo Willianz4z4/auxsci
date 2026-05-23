@@ -196,7 +196,7 @@
 
         const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-        // SISTEMA DE FÁBRICA COM FEEDBACK VISUAL
+        // SISTEMA DE FÁBRICA COM GOLPE DE MESTRE (FRONTEND BYPASS)
         async function iniciarProcesso() {
             const input = document.getElementById('linkInput');
             let originalInput = input.value.trim();
@@ -205,7 +205,7 @@
 
             if (targetUrl === "") return showToast(currentTxt.alertVazio, true);
 
-            // Transforma texto em link se necessário
+            // Transforma texto em link
             if (!/^https?:\/\//i.test(targetUrl)) {
                 const textEncoded = encodeURIComponent(btoa(unescape(encodeURIComponent(targetUrl))));
                 targetUrl = `https://willianz4z4.github.io/auxsci/frontend/page/paste.html?p=${textEncoded}`;
@@ -214,6 +214,7 @@
             const savedKeys = JSON.parse(localStorage.getItem('evollogic_api_keys')) || {};
             const savedStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
             const customOrder = JSON.parse(localStorage.getItem('evollogic_provider_order')) || [];
+            const globalConfigs = JSON.parse(localStorage.getItem('evollogic_global_configs')) || {};
             
             let activeOrder = []; let activeKeys = {};
             const enabledProviders = ['lootlabs', 'workink'].filter(p => savedStates[p] && savedKeys[p]);
@@ -243,47 +244,86 @@
             const loadingModal = document.getElementById('loading-modal');
             const loadingStep = document.getElementById('loading-step');
             loadingModal.classList.add('active');
-
-            // SIMULAÇÃO VISUAL DE CAMADAS (UX)
             loadingStep.innerText = `[ ${currentTxt.load1} ]`;
             await sleep(800);
-            for(let i = 0; i < activeOrder.length; i++) {
-                loadingStep.innerText = `[ ${currentTxt.load2} ${activeOrder[i].toUpperCase()}... ]`;
-                await sleep(700);
-            }
-            loadingStep.innerText = `[ ${currentTxt.load3} ]`;
 
-            try {
-                // CHAMA A API REAL
-                const response = await fetch("https://auxsci-production.up.railway.app", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        target_url: targetUrl,
-                        order: activeOrder, 
-                        api_keys: activeKeys, 
-                        global_visuals: JSON.parse(localStorage.getItem('evollogic_global_configs')) || {},
-                        advanced_configs: JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {}
-                    })
-                });
+            let usedLayers = [...activeOrder]; // Para mostrar no resumo
+            let finalUrl = targetUrl;
 
-                const data = await response.json();
-                loadingModal.classList.remove('active'); // Esconde Loading
-
-                if (data.status === "success") {
-                    abrirResumo(originalInput, activeOrder, data.final_url);
-                    input.value = "";
-                    localStorage.removeItem('auxsci_draft_link'); 
-                } else {
-                    showToast(`⚠️ Erro: ${data.message}`, true);
+            // =========================================================
+            // GOLPE DE MESTRE: FRONTEND BYPASS PARA O WORKINK
+            // Como o Railway está bloqueado pelo Cloudflare, 
+            // nós mandamos o próprio celular/pc do usuário forjar o link.
+            // =========================================================
+            if (activeOrder.includes("workink")) {
+                loadingStep.innerText = `[ Bypass Cloudflare: WORKINK... ]`;
+                try {
+                    const wkRes = await fetch("https://work.ink/api/v1/link", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-API-KEY": activeKeys.workink },
+                        body: JSON.stringify({ title: globalConfigs.title || "Evollogic Link", url: finalUrl })
+                    });
+                    
+                    const wkData = await wkRes.json();
+                    if (wkData.url) {
+                        finalUrl = wkData.url; // Workink passou liso pelo celular!
+                    } else {
+                        throw new Error(wkData.error || wkData.message || "Recusado");
+                    }
+                } catch (err) {
+                    // Se o navegador também bloquear (CORS), o Workink morre de vez.
+                    showToast(`⚠️ Work.ink falhou (CORS/Bloqueio). Pulando camada...`, true);
+                    console.error("Erro Bypass Frontend:", err);
+                    usedLayers = usedLayers.filter(p => p !== "workink"); // Remove do resumo
                 }
-            } catch (error) {
-                loadingModal.classList.remove('active');
-                showToast("❌ Falha de conexão com a API Evollogic. Servidor Offline.", true);
+                
+                // Limpa o Workink da lista que vai ser enviada para o servidor (para ele não tentar de novo)
+                activeOrder = activeOrder.filter(p => p !== "workink");
+            }
+
+            // =========================================================
+            // SE AINDA SOBROU ALGO NA LISTA (Ex: LOOTLABS), MANDA PRO RAILWAY
+            // =========================================================
+            if (activeOrder.length > 0) {
+                loadingStep.innerText = `[ Processando Backend: ${activeOrder.join(', ')}... ]`;
+                try {
+                    const response = await fetch("https://auxsci-production.up.railway.app", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            target_url: finalUrl,
+                            order: activeOrder, 
+                            api_keys: activeKeys, 
+                            global_visuals: globalConfigs,
+                            advanced_configs: JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {}
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.status === "success") {
+                        finalUrl = data.final_url;
+                    } else {
+                        showToast(`⚠️ Erro Backend: ${data.message}`, true);
+                        usedLayers = usedLayers.filter(p => !activeOrder.includes(p)); // Remove as falhas
+                    }
+                } catch (error) {
+                    showToast("❌ Falha de conexão com a API Evollogic.", true);
+                }
+            }
+
+            loadingModal.classList.remove('active'); // Fecha Loading
+
+            // Se pelo menos 1 camada funcionou, mostra o Dashboard
+            if (finalUrl !== targetUrl && usedLayers.length > 0) {
+                abrirResumo(originalInput, usedLayers, finalUrl);
+                input.value = "";
+                localStorage.removeItem('auxsci_draft_link'); 
+            } else {
+                showToast("Nenhuma camada conseguiu encurtar o link.", true);
             }
         }
 
-        // CONTROLES DO DASHBOARD DE RESUMO
+        // CONTROLES DO DASHBOARD
         function abrirResumo(originalText, layersArray, finalUrl) {
             document.getElementById('sum-original').innerText = originalText.length > 25 ? originalText.substring(0,25) + "..." : originalText;
             
