@@ -8,7 +8,6 @@ app.use(cors());
 
 const safeDict = (obj) => (typeof obj === 'object' && obj !== null && !Array.isArray(obj)) ? obj : {};
 
-// CABEÇALHO DE DISFARCE (Engana o Cloudflare simulando um Chrome real)
 const HEADERS_PADRAO = {
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -34,7 +33,7 @@ async function callLootlabs(payload, key, title, url, advCfg) {
         return response.data;
     } catch (error) {
         if (error.response) throw new Error(error.response.data.message || `Recusado: Status ${error.response.status}`);
-        throw new Error(`Falha na Rede/Cloudflare: ${error.message}`);
+        throw new Error(`Falha na Rede: ${error.message}`);
     }
 }
 
@@ -43,18 +42,18 @@ async function callWorkink(payload, key, title, url, advCfg) {
     const data = { title: title || "Link", url: url };
     
     try {
-        const response = await axios.post("https://api.work.ink/v1/link", data, {
+        // ENDEREÇO CORRIGIDO PARA O DOMÍNIO OFICIAL ATUAL
+        const response = await axios.post("https://work.ink/api/v1/link", data, {
             headers: { ...HEADERS_PADRAO, "X-API-KEY": key, "Origin": "https://work.ink" },
             timeout: 15000
         });
         return response.data;
     } catch (error) {
         if (error.response) throw new Error(error.response.data.error || error.response.data.message || `Recusado: Status ${error.response.status}`);
-        throw new Error(`Falha na Rede/Cloudflare: ${error.message}`);
+        throw new Error(`Falha na Rede: ${error.message}`);
     }
 }
 
-// --- ROTA DE PING PARA O SETUP_API ---
 app.post('/ping', async (req, res) => {
     const { provider, key } = req.body;
     try {
@@ -72,7 +71,6 @@ app.post('/ping', async (req, res) => {
     }
 });
 
-// --- ROTA PRINCIPAL (FÁBRICA DE LINKS) ---
 app.post('/', async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) throw new Error("Corpo vazio.");
@@ -124,4 +122,4 @@ app.post('/', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Evollogic V10.4 (Axios Anti-CF) na porta ${PORT}!`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Evollogic V10.5 (Workink Domain Fix) na porta ${PORT}!`));
