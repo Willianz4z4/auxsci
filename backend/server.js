@@ -11,8 +11,7 @@ const safeDict = (obj) => (typeof obj === 'object' && obj !== null && !Array.isA
 const HEADERS_PADRAO = {
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Accept": "application/json",
-    "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8"
+    "Accept": "application/json"
 };
 
 async function callLootlabs(payload, key, title, url, advCfg) {
@@ -32,7 +31,10 @@ async function callLootlabs(payload, key, title, url, advCfg) {
         });
         return response.data;
     } catch (error) {
-        if (error.response) throw new Error(error.response.data.message || `Recusado: Status ${error.response.status}`);
+        if (error.response) {
+            let msg = typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data);
+            throw new Error(`Status ${error.response.status} - ${msg.substring(0, 50)}`);
+        }
         throw new Error(`Falha na Rede: ${error.message}`);
     }
 }
@@ -42,15 +44,27 @@ async function callWorkink(payload, key, title, url, advCfg) {
     const data = { title: title || "Link", url: url };
     
     try {
-        // ENDEREÇO CORRIGIDO PARA O DOMÍNIO OFICIAL ATUAL
         const response = await axios.post("https://work.ink/api/v1/link", data, {
-            headers: { ...HEADERS_PADRAO, "X-API-KEY": key, "Origin": "https://work.ink" },
+            headers: { 
+                ...HEADERS_PADRAO, 
+                "X-API-KEY": key,
+                "Authorization": `Bearer ${key}` // Enviamos nos dois formatos para forçar a leitura
+            },
             timeout: 15000
         });
         return response.data;
     } catch (error) {
-        if (error.response) throw new Error(error.response.data.error || error.response.data.message || `Recusado: Status ${error.response.status}`);
-        throw new Error(`Falha na Rede: ${error.message}`);
+        if (error.response) {
+            let errBody = error.response.data;
+            let strBody = typeof errBody === 'string' ? errBody : JSON.stringify(errBody);
+            
+            // O Raio-X em Ação:
+            if (strBody.toLowerCase().includes("cloudflare") || strBody.includes("<html")) {
+                throw new Error("Bloqueio Cloudflare! O Work.ink está banindo IPs de nuvem (Railway).");
+            }
+            throw new Error(`Chave Recusada: ${strBody.substring(0, 60)}`);
+        }
+        throw new Error(`Falha de Conexão: ${error.message}`);
     }
 }
 
@@ -83,7 +97,6 @@ app.post('/', async (req, res) => {
 
         const rawTitle = globalVisuals.title || 'Link';
         const title = rawTitle.length > 9 ? rawTitle.substring(0, 9) + '..' : rawTitle;
-
         const originalUrl = payload.target_url || '';
         if (!originalUrl) throw new Error("URL ausente.");
 
@@ -95,16 +108,14 @@ app.post('/', async (req, res) => {
                 if (provider === 'lootlabs') {
                     const result = await callLootlabs(payload, keys.lootlabs, title, currentUrl, advConfigs.lootlabs);
                     let lootUrl = (result.message && Array.isArray(result.message)) ? result.message[0]?.loot_url : result.message?.loot_url;
-                    
                     if (lootUrl) currentUrl = lootUrl;
-                    else throw new Error("A API não devolveu o link.");
+                    else throw new Error("API não retornou a URL.");
 
                 } else if (provider === 'workink') {
                     const result = await callWorkink(payload, keys.workink, title, currentUrl, advConfigs.workink);
-                    
                     let wkUrl = result.url || result.data?.url || result.message?.url;
                     if (wkUrl) currentUrl = wkUrl;
-                    else throw new Error("A API não devolveu o link.");
+                    else throw new Error("API não retornou a URL.");
                 }
             } catch (err) {
                 return res.status(200).json({ status: "error", message: `[${provider.toUpperCase()}] ${err.message}` });
@@ -122,4 +133,4 @@ app.post('/', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Evollogic V10.5 (Workink Domain Fix) na porta ${PORT}!`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Evollogic V10.6 (Raio-X de Erros) na porta ${PORT}!`));
