@@ -127,27 +127,34 @@
 
             if (targetUrl === "") return showToast(currentTxt.alertVazio, true);
 
-            // INTELIGÊNCIA: Se não for link (http), transforma num link do paste.html criptografado
+            // INTELIGÊNCIA: Se não for link (http), transforma num link do paste.html
             if (!/^https?:\/\//i.test(targetUrl)) {
                 const textEncoded = encodeURIComponent(btoa(unescape(encodeURIComponent(targetUrl))));
                 targetUrl = `https://willianz4z4.github.io/auxsci/frontend/page/paste.html?p=${textEncoded}`;
             }
 
+            // Coleta os dados salvos nas configurações
             const savedKeys = JSON.parse(localStorage.getItem('evollogic_api_keys')) || {};
             const savedStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
+            const customOrder = JSON.parse(localStorage.getItem('evollogic_provider_order')) || [];
+            const advConfigs = JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {};
+            const globalConfigs = JSON.parse(localStorage.getItem('evollogic_global_configs')) || {};
             
             let activeOrder = [];
             let activeKeys = {};
 
-            // A ORDEM DA CEBOLA: Workink primeiro, depois embrulha no Lootlabs
-            if (savedStates.workink && savedKeys.workink) {
-                activeOrder.push("workink");
-                activeKeys.workink = savedKeys.workink;
+            // 1. Filtra quem realmente está ligado no Setup
+            const enabledProviders = ['lootlabs', 'workink'].filter(p => savedStates[p] && savedKeys[p]);
+            
+            // 2. Aplica a ordem escolhida no Config.html (Lógica Dinâmica)
+            if (customOrder.length > 0) {
+                activeOrder = customOrder.filter(p => enabledProviders.includes(p));
+            } else {
+                activeOrder = enabledProviders; // Se o usuário não ordenou, pega o padrão
             }
-            if (savedStates.lootlabs && savedKeys.lootlabs) {
-                activeOrder.push("lootlabs");
-                activeKeys.lootlabs = savedKeys.lootlabs;
-            }
+
+            // 3. Monta as chaves na ordem certa
+            activeOrder.forEach(p => activeKeys[p] = savedKeys[p]);
 
             if (activeOrder.length === 0) return showToast(currentTxt.erroSetup, true);
 
@@ -169,6 +176,7 @@
             btn.innerText = currentTxt.processando;
 
             try {
+                // Envia pacote completo para o Railway (Ordem + Chaves + Configurações Avançadas)
                 const response = await fetch("https://auxsci-production.up.railway.app", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -176,7 +184,8 @@
                         target_url: targetUrl,
                         order: activeOrder, 
                         api_keys: activeKeys, 
-                        global_visuals: { title: "Evollogic" }
+                        global_visuals: globalConfigs,
+                        advanced_configs: advConfigs
                     })
                 });
 
