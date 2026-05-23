@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Auxsci Hub - Encurtador e Monetização</title>
     <style>
+        /* Base e Fundo */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body, html { width: 100vw; height: 100vh; overflow: hidden; background-color: #0a0514; color: white; }
         .css-background { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; background: linear-gradient(-45deg, #0f0518, #2a0845, #14032e, #0a0014); background-size: 400% 400%; animation: gradientBG 10s ease infinite; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .video-background { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -2; opacity: 0; transition: opacity 1.5s ease; }
         .video-overlay { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, rgba(15, 5, 25, 0.7) 0%, rgba(5, 0, 10, 0.85) 100%); z-index: -1; }
-        .top-btn { position: fixed; top: 25px; height: 50px; background: rgba(30, 10, 50, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 100; transition: all 0.3s ease; color: #d8b4fe; font-weight: bold; }
+
+        /* Controles Topo e Lateral */
+        .top-btn { position: fixed; top: 25px; height: 50px; background: rgba(30, 10, 50, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 100; transition: all 0.3s ease; color: #d8b4fe; font-weight: bold; }
         .top-btn:hover { background: rgba(147, 51, 234, 0.3); color: white; }
         .lang-btn { left: 25px; padding: 0 20px; gap: 8px; font-size: 14px; }
         .hamburger-menu { right: 25px; width: 50px; flex-direction: column; gap: 6px; }
@@ -19,12 +22,14 @@
         .hamburger-menu.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); background-color: #fff; }
         .hamburger-menu.active span:nth-child(2) { opacity: 0; }
         .hamburger-menu.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background-color: #fff; }
-        .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
         .sidebar-backdrop.active { opacity: 1; pointer-events: all; }
         .sidebar-frame { position: fixed; top: 0; right: 0; width: 320px; max-width: 85vw; height: 100vh; border: none; z-index: 90; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: transparent; }
         .sidebar-frame.active { transform: translateX(0); }
+
+        /* Interface Principal */
         .main-wrapper { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
-        .container { position: relative; z-index: 10; background: rgba(20, 10, 35, 0.5); padding: 40px 25px; border-radius: 24px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(147, 51, 234, 0.3); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(147, 51, 234, 0.15); text-align: center; max-width: 400px; width: 90%; animation: fadeIn 0.6s ease-out; }
+        .container { position: relative; z-index: 10; background: rgba(20, 10, 35, 0.5); padding: 40px 25px; border-radius: 24px; backdrop-filter: blur(20px); border: 1px solid rgba(147, 51, 234, 0.3); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(147, 51, 234, 0.15); text-align: center; max-width: 400px; width: 90%; animation: fadeIn 0.6s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 20px rgba(147, 51, 234, 0.6); }
         p { color: #d8b4fe; font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
@@ -35,9 +40,38 @@
         button.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.15); box-shadow: 0 12px 30px rgba(147, 51, 234, 0.5); }
         .footer-logo { margin-top: 30px; font-size: 12px; color: #8b5cf6; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
         .footer-logo span { color: #d8b4fe; font-weight: 900; }
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); z-index: 1000; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 15px 25px; border-radius: 12px; font-weight: bold; backdrop-filter: blur(5px); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 400px; text-align: center; }
+
+        /* SISTEMA DE NOTIFICAÇÃO (TOAST) */
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); z-index: 1000; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 15px 25px; border-radius: 12px; font-weight: bold; backdrop-filter: blur(5px); opacity: 0; transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 90%; max-width: 400px; text-align: center; }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         #toast.error { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #ef4444; }
+
+        /* MODAIS DE PROGRESSO E RESUMO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 0, 15, 0.8); backdrop-filter: blur(8px); z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.4s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .process-box { text-align: center; color: white; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(147, 51, 234, 0.3); border-top-color: #d8b4fe; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .process-title { font-size: 22px; font-weight: 800; color: #d8b4fe; text-transform: uppercase; letter-spacing: 1px; }
+        .process-step { font-size: 14px; color: #a1a1aa; font-family: monospace; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 8px; border: 1px dashed rgba(147, 51, 234, 0.5); }
+
+        .summary-box { background: rgba(20, 10, 35, 0.95); border: 1px solid rgba(147, 51, 234, 0.4); padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform: translateY(20px); transition: 0.4s; }
+        .modal-overlay.active .summary-box { transform: translateY(0); }
+        .summary-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; color: #10b981; font-size: 24px; font-weight: 800; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 12px 15px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; border: 1px solid rgba(255,255,255,0.05); }
+        .info-row span:first-child { color: #a1a1aa; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .info-row span:last-child { color: #d8b4fe; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; text-align: right; }
+        .layers-badge { display: flex; gap: 5px; }
+        .badge { background: rgba(147, 51, 234, 0.2); border: 1px solid rgba(147, 51, 234, 0.5); padding: 2px 8px; border-radius: 6px; font-size: 11px; text-transform: uppercase; color: #fff; }
+        
+        .final-link-container { margin-top: 25px; margin-bottom: 25px; display: flex; gap: 10px; }
+        .final-link-container input { padding: 15px; font-size: 14px; background: rgba(0,0,0,0.8); border-color: #9333ea; border-radius: 12px; }
+        .btn-copy { background: #9333ea; border: none; border-radius: 12px; padding: 0 20px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; }
+        .btn-copy:hover { background: #a855f7; }
+        .btn-done { width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-done:hover { background: rgba(255,255,255,0.1); }
+
         @media (min-width: 768px) { .container { max-width: 550px; padding: 50px 40px; } }
     </style>
 </head>
@@ -61,9 +95,44 @@
 
             <div class="input-group">
                 <input type="text" id="linkInput" placeholder="Cole texto ou link aqui..." required>
-                <button class="btn-primary" onclick="enviarEncurtador()" id="txt-btn1">Encurtar e Monetizar</button>
+                <button class="btn-primary" onclick="iniciarProcesso()" id="txt-btn1">Forjar Link</button>
             </div>
             <div class="footer-logo">by <span>Evollogic</span></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loading-modal">
+        <div class="process-box">
+            <div class="spinner"></div>
+            <div class="process-title" id="txt-loading-title">Trabalhando...</div>
+            <div class="process-step" id="loading-step">[ Conectando ao servidor... ]</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="summary-modal">
+        <div class="summary-box">
+            <div class="summary-header">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span id="txt-sum-title">Relatório de Fábrica</span>
+            </div>
+            
+            <div class="info-row">
+                <span id="txt-sum-in">Entrada</span>
+                <span id="sum-original">...</span>
+            </div>
+            <div class="info-row">
+                <span id="txt-sum-layers">Camadas Aplicadas</span>
+                <div class="layers-badge" id="sum-badges"></div>
+            </div>
+
+            <div class="final-link-container">
+                <input type="text" id="final-generated-link" readonly>
+                <button class="btn-copy" onclick="copiarLinkFinal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+            </div>
+
+            <button class="btn-done" onclick="fecharResumo()" id="txt-btn-done">Criar Novo Link</button>
         </div>
     </div>
 
@@ -74,9 +143,9 @@
         video.addEventListener('loadeddata', () => { video.style.opacity = '0.5'; });
 
         const dicionario = {
-            "pt": { title: "Auxsci Hub", desc: "Insira texto ou link e comece a monetizar em camadas.", placeholder: "Cole texto ou link...", btn1: "Processar Camadas", alertVazio: "Insira algo primeiro!", alertSucesso: "Link gerado com sucesso!", processando: "Montando camadas...", erroSetup: "Ative Lootlabs ou Workink no Setup!" },
-            "en": { title: "Auxsci Hub", desc: "Insert text or link and start monetizing in layers.", placeholder: "Paste text or link...", btn1: "Process Layers", alertVazio: "Insert something first!", alertSucesso: "Link successfully generated!", processando: "Building layers...", erroSetup: "Activate APIs in Setup!" },
-            "es": { title: "Auxsci Hub", desc: "Inserta texto o enlace para monetizar en capas.", placeholder: "Pega texto o enlace...", btn1: "Procesar Capas", alertVazio: "¡Inserta algo primero!", alertSucesso: "¡Enlace generado!", processando: "Construyendo capas...", erroSetup: "¡Activa APIs en el Setup!" }
+            "pt": { title: "Auxsci Hub", desc: "Insira texto ou link e comece a monetizar em camadas.", placeholder: "Cole texto ou link...", btn1: "Forjar Link", alertVazio: "Insira algo primeiro!", erroSetup: "Ative Lootlabs ou Workink no Setup!", load1: "Montando estrutura de cebola...", load2: "Criptografando ", load3: "Gerando URL Blindada...", sumTitle: "Relatório de Fábrica", sumIn: "Original", sumLayers: "Camadas (Ordem)", btnDone: "Criar Novo Link", msgCopied: "Link copiado para a área de transferência!" },
+            "en": { title: "Auxsci Hub", desc: "Insert text or link and start monetizing in layers.", placeholder: "Paste text or link...", btn1: "Forge Link", alertVazio: "Insert something first!", erroSetup: "Activate APIs in Setup!", load1: "Building onion structure...", load2: "Encrypting ", load3: "Generating Shielded URL...", sumTitle: "Factory Report", sumIn: "Original", sumLayers: "Layers (Order)", btnDone: "Create New Link", msgCopied: "Link copied to clipboard!" },
+            "es": { title: "Auxsci Hub", desc: "Inserta texto o enlace para monetizar en capas.", placeholder: "Pega texto o enlace...", btn1: "Forjar Enlace", alertVazio: "¡Inserta algo primero!", erroSetup: "¡Activa APIs en el Setup!", load1: "Construyendo estructura cebolla...", load2: "Encriptando ", load3: "Generando URL Blindada...", sumTitle: "Reporte de Fábrica", sumIn: "Original", sumLayers: "Capas (Orden)", btnDone: "Crear Nuevo Enlace", msgCopied: "¡Enlace copiado al portapapeles!" }
         };
 
         const langs = ["pt", "en", "es"];
@@ -88,6 +157,11 @@
             document.getElementById("txt-desc").innerText = txt.desc;
             document.getElementById("linkInput").setAttribute("placeholder", txt.placeholder);
             document.getElementById("txt-btn1").innerText = txt.btn1;
+            document.getElementById("txt-loading-title").innerText = txt.btn1;
+            document.getElementById("txt-sum-title").innerText = txt.sumTitle;
+            document.getElementById("txt-sum-in").innerText = txt.sumIn;
+            document.getElementById("txt-sum-layers").innerText = txt.sumLayers;
+            document.getElementById("txt-btn-done").innerText = txt.btnDone;
             document.getElementById("current-lang").innerText = langCode.toUpperCase();
             localStorage.setItem('evollogic_lang', langCode);
         }
@@ -99,7 +173,7 @@
 
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
-            const icon = isError ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            const icon = isError ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
             toast.innerHTML = `${icon} <span style="word-break: break-all; font-size: 14px;">${message}</span>`;
             if (isError) toast.classList.add('error'); else toast.classList.remove('error');
             toast.classList.add('show');
@@ -120,44 +194,38 @@
             localStorage.setItem('auxsci_draft_link', e.target.value);
         });
 
-        async function enviarEncurtador() {
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        // SISTEMA DE FÁBRICA COM FEEDBACK VISUAL
+        async function iniciarProcesso() {
             const input = document.getElementById('linkInput');
-            let targetUrl = input.value.trim();
+            let originalInput = input.value.trim();
+            let targetUrl = originalInput;
             const currentTxt = dicionario[langs[currentLangIndex]];
 
             if (targetUrl === "") return showToast(currentTxt.alertVazio, true);
 
-            // INTELIGÊNCIA: Se não for link (http), transforma num link do paste.html
+            // Transforma texto em link se necessário
             if (!/^https?:\/\//i.test(targetUrl)) {
                 const textEncoded = encodeURIComponent(btoa(unescape(encodeURIComponent(targetUrl))));
                 targetUrl = `https://willianz4z4.github.io/auxsci/frontend/page/paste.html?p=${textEncoded}`;
             }
 
-            // Coleta os dados salvos nas configurações
             const savedKeys = JSON.parse(localStorage.getItem('evollogic_api_keys')) || {};
             const savedStates = JSON.parse(localStorage.getItem('evollogic_api_states')) || {};
             const customOrder = JSON.parse(localStorage.getItem('evollogic_provider_order')) || [];
-            const advConfigs = JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {};
-            const globalConfigs = JSON.parse(localStorage.getItem('evollogic_global_configs')) || {};
             
-            let activeOrder = [];
-            let activeKeys = {};
-
-            // 1. Filtra quem realmente está ligado no Setup
+            let activeOrder = []; let activeKeys = {};
             const enabledProviders = ['lootlabs', 'workink'].filter(p => savedStates[p] && savedKeys[p]);
             
-            // 2. Aplica a ordem escolhida no Config.html (Lógica Dinâmica)
-            if (customOrder.length > 0) {
-                activeOrder = customOrder.filter(p => enabledProviders.includes(p));
-            } else {
-                activeOrder = enabledProviders; // Se o usuário não ordenou, pega o padrão
-            }
+            if (customOrder.length > 0) activeOrder = customOrder.filter(p => enabledProviders.includes(p));
+            else activeOrder = enabledProviders;
 
-            // 3. Monta as chaves na ordem certa
             activeOrder.forEach(p => activeKeys[p] = savedKeys[p]);
 
             if (activeOrder.length === 0) return showToast(currentTxt.erroSetup, true);
 
+            // Popunder Adsterra (1x a cada 12h)
             const adShownTime = localStorage.getItem('ad_last_shown');
             const now = new Date().getTime();
             if (!adShownTime || (now - parseInt(adShownTime)) > (12 * 60 * 60 * 1000)) {
@@ -171,12 +239,22 @@
                 localStorage.setItem('ad_last_shown', now.toString());
             }
 
-            const btn = document.getElementById("txt-btn1");
-            const textoAntigo = btn.innerText;
-            btn.innerText = currentTxt.processando;
+            // ABRE TELA DE LOADING
+            const loadingModal = document.getElementById('loading-modal');
+            const loadingStep = document.getElementById('loading-step');
+            loadingModal.classList.add('active');
+
+            // SIMULAÇÃO VISUAL DE CAMADAS (UX)
+            loadingStep.innerText = `[ ${currentTxt.load1} ]`;
+            await sleep(800);
+            for(let i = 0; i < activeOrder.length; i++) {
+                loadingStep.innerText = `[ ${currentTxt.load2} ${activeOrder[i].toUpperCase()}... ]`;
+                await sleep(700);
+            }
+            loadingStep.innerText = `[ ${currentTxt.load3} ]`;
 
             try {
-                // Envia pacote completo para o Railway (Ordem + Chaves + Configurações Avançadas)
+                // CHAMA A API REAL
                 const response = await fetch("https://auxsci-production.up.railway.app", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -184,25 +262,52 @@
                         target_url: targetUrl,
                         order: activeOrder, 
                         api_keys: activeKeys, 
-                        global_visuals: globalConfigs,
-                        advanced_configs: advConfigs
+                        global_visuals: JSON.parse(localStorage.getItem('evollogic_global_configs')) || {},
+                        advanced_configs: JSON.parse(localStorage.getItem('evollogic_advanced_configs')) || {}
                     })
                 });
 
                 const data = await response.json();
+                loadingModal.classList.remove('active'); // Esconde Loading
 
                 if (data.status === "success") {
-                    showToast(`${currentTxt.alertSucesso}`);
-                    input.value = data.final_url;
+                    abrirResumo(originalInput, activeOrder, data.final_url);
+                    input.value = "";
                     localStorage.removeItem('auxsci_draft_link'); 
                 } else {
                     showToast(`⚠️ Erro: ${data.message}`, true);
                 }
             } catch (error) {
-                showToast("❌ Falha de conexão com a API Evollogic.", true);
-            } finally {
-                btn.innerText = textoAntigo;
+                loadingModal.classList.remove('active');
+                showToast("❌ Falha de conexão com a API Evollogic. Servidor Offline.", true);
             }
+        }
+
+        // CONTROLES DO DASHBOARD DE RESUMO
+        function abrirResumo(originalText, layersArray, finalUrl) {
+            document.getElementById('sum-original').innerText = originalText.length > 25 ? originalText.substring(0,25) + "..." : originalText;
+            
+            let badgesHTML = "";
+            layersArray.forEach(p => {
+                let cor = p === 'lootlabs' ? '#9d4edd' : '#00ff88';
+                badgesHTML += `<span class="badge" style="border-color:${cor}; color:${cor}">${p}</span>`;
+            });
+            document.getElementById('sum-badges').innerHTML = badgesHTML;
+            
+            document.getElementById('final-generated-link').value = finalUrl;
+            document.getElementById('summary-modal').classList.add('active');
+        }
+
+        function fecharResumo() {
+            document.getElementById('summary-modal').classList.remove('active');
+        }
+
+        function copiarLinkFinal() {
+            const inputLink = document.getElementById('final-generated-link');
+            inputLink.select();
+            inputLink.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            showToast(dicionario[langs[currentLangIndex]].msgCopied);
         }
 
         function toggleMenu() {
